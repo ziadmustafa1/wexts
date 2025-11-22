@@ -1,0 +1,17 @@
+{
+    "name": "fusion-demo",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "cd packages/fusionjs && node dist/cli/index.js dev",
+        "build": "turbo run build",
+        "test": "turbo run test"
+    },
+    "workspaces": [
+        "apps/*",
+        "packages/*"
+    ],
+    "devDependencies": {
+        "turbo": "^1.11.0"
+    }
+}

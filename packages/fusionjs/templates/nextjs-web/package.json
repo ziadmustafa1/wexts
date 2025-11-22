@@ -1,0 +1,28 @@
+{
+    "name": "fusion-web",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint"
+    },
+    "dependencies": {
+        "react": "^19.2.0",
+        "react-dom": "^19.2.0",
+        "next": "^16.0.0",
+        "wexts": "^1.0.0",
+        "clsx": "^2.1.0",
+        "tailwind-merge": "^2.2.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20.11.0",
+        "@types/react": "^18.2.0",
+        "@types/react-dom": "^18.2.0",
+        "typescript": "^5.3.3",
+        "tailwindcss": "^4.1.0",
+        "postcss": "^8.4.0",
+        "autoprefixer": "^10.4.0"
+    }
+}

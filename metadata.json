@@ -1,0 +1,5 @@
+{
+  "name": "wexts Architect",
+  "description": "An interactive documentation and simulation dashboard for the wexts full-stack framework concept, featuring a mock CLI, AST code generation preview, and AI-powered framework assistant.",
+  "requestFramePermissions": []
+}
