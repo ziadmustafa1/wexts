@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Brand Colors - Deep Violet & Electric Purple */
+    --background: 260 30% 98%;
+    --foreground: 260 40% 10%;
+    
+    --primary: 265 89% 66%;
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 260 20% 90%;
+    --secondary-foreground: 260 40% 10%;
+    
+    --muted: 260 20% 96%;
+    --muted-foreground: 260 20% 40%;
+    
+    --accent: 265 89% 96%;
+    --accent-foreground: 265 89% 66%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 260 20% 90%;
+    --input: 260 20% 90%;
+    --ring: 265 89% 66%;
+    
+    --radius: 1rem;
+  }
+
+  .dark {
+    --background: 260 40% 5%;
+    --foreground: 210 40% 98%;
+    
+    --primary: 265 89% 66%;
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 260 30% 15%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --muted: 260 30% 15%;
+    --muted-foreground: 215 20% 65%;
+    
+    --accent: 260 30% 15%;
+    --accent-foreground: 210 40% 98%;
+    
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 260 30% 15%;
+    --input: 260 30% 15%;
+    --ring: 265 89% 66%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-xl;
+  }
+  .glass-dark {
+    @apply bg-black/30 backdrop-blur-lg border border-white/10 shadow-xl;
+  }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0px); }
+}

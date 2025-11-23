@@ -5,7 +5,6 @@ import TerminalDemo from './components/TerminalDemo';
 import GeneratorDemo from './components/GeneratorDemo';
 import Architecture from './components/Architecture';
 import Docs from './components/Docs';
-import AiAssistant from './components/AiAssistant';
 import DevTools from './components/DevTools';
 
 const App: React.FC = () => {
@@ -175,16 +174,6 @@ const App: React.FC = () => {
           {currentView === View.ARCHITECTURE && <Architecture />}
           
           {currentView === View.DOCS && <Docs />}
-
-          {currentView === View.AI_ASSISTANT && (
-            <div className="animate-fade-in">
-                <div className="mb-6">
-                    <h2 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">Fusion Architect AI</h2>
-                    <p className="text-zinc-600 dark:text-zinc-400">Powered by Gemini. Ask about architecture, NestJS 10 decorators, or Next.js 16 routing.</p>
-                </div>
-                <AiAssistant />
-            </div>
-          )}
 
         </div>
       </main>

@@ -8,30 +8,31 @@ The definitive guide to the unified **Next.js 16** + **NestJS 10** monorepo arch
 - **Monorepo Native** - Built on TurboRepo with shared types and packages
 - **React 19 + Next.js 16** - Latest features including Server Components and PPR
 - **NestJS 10** - Modern backend with Fastify adapter
-- **Fusion Insight** - Development GUI for monitoring RPC calls and database
+- **Wexts Insight** - Development GUI for monitoring RPC calls and database
 - **Type-Safe** - End-to-end TypeScript from database to client
 - **Prisma Integration** - Type-safe database operations
+- **Modern UI** - Pre-configured with Tailwind CSS, Lucide Icons, and React Hot Toast
 
 ## 📦 Installation
 
 ```bash
-npm install -g @ziad_mostafa/cli
+npm install -g wexts
 ```
 
 ## 🎯 Quick Start
 
 ```bash
 # Create a new project
-fusion init my-app
+wexts init my-app
 
 # Navigate to project
 cd my-app
 
 # Start development servers
-fusion dev
+wexts dev
 
 # Build for production
-fusion build
+wexts build
 ```
 
 ## 🏗️ Monorepo Structure
@@ -40,7 +41,7 @@ Optimized for TurboRepo. Uses **React 19 (RC)** and **NestJS 10** by default.
 
 ```
 wexts/
- ├── fusion.config.ts
+ ├── wexts.config.ts
  ├── apps/
  │    ├── web/      (Next.js 16 + React 19)
  │    └── api/      (NestJS 10)
@@ -58,13 +59,13 @@ wexts/
 
 **For Package Authors**
 
-To publish `@ziad_mostafa/sdk` to npm, use the following boilerplate for the `packages/api-client` directory.
+To publish `wexts` to npm, use the following boilerplate for the `packages/api-client` directory.
 
 ### packages/api-client/package.json
 
 ```json
 {
-  "name": "@ziad_mostafa/sdk",
+  "name": "wexts-sdk",
   "version": "0.0.1",
   "description": "Auto-generated API client for wexts",
   "main": "./dist/index.js",
@@ -121,7 +122,7 @@ export default defineConfig({
 ```typescript
 // packages/api-client/src/fetcher.ts
 
-export class FusionFetcher {
+export class WextsFetcher {
   private baseUrl: string;
   
   constructor(baseUrl: string = '/api') {
@@ -133,9 +134,10 @@ export class FusionFetcher {
       'Content-Type': 'application/json',
     };
 
-    // Automatically attach Fusion Token if present
+    // Automatically attach Wexts Token if present
     if (typeof window !== 'undefined') {
-       const token = localStorage.getItem('fusion_token');
+       // Note: In the actual app we use cookies (wexts_token), but for SDK usage:
+       const token = localStorage.getItem('wexts_token');
        if (token) headers['Authorization'] = `Bearer ${token}`;
     }
 
@@ -146,7 +148,7 @@ export class FusionFetcher {
     });
 
     if (!response.ok) {
-      throw new Error(`Fusion API Error: ${response.statusText}`);
+      throw new Error(`Wexts API Error: ${response.statusText}`);
     }
 
     return response.json();
@@ -158,7 +160,7 @@ export class FusionFetcher {
   delete<T>(path: string) { return this.request<T>('DELETE', path); }
 }
 
-export const apiFetcher = new FusionFetcher();
+export const apiFetcher = new WextsFetcher();
 ```
 
 To publish:
@@ -168,7 +170,7 @@ npm publish --access public
 
 ## ⚙️ Global Configuration
 
-The `fusion.config.ts` file controls the monorepo behavior, including the developer proxy that routes traffic from Next.js to NestJS automatically.
+The `wexts.config.ts` file controls the monorepo behavior, including the developer proxy that routes traffic from Next.js to NestJS automatically.
 
 ```typescript
 import { defineConfig } from 'wexts';
@@ -197,10 +199,10 @@ export default defineConfig({
 
 | Command | Description |
 | :--- | :--- |
-| `fusion new module [name]` | Creates Controller, Service, and Next.js Page. |
-| `fusion dev` | Starts monorepo in watch mode with Proxy & Insight GUI. |
-| `fusion generate controller` | Adds a new NestJS controller and updates SDK. |
-| `fusion build` | Compiles API, Web, and Packages for prod. |
+| `wexts new module [name]` | Creates Controller, Service, and Next.js Page. |
+| `wexts dev` | Starts monorepo in watch mode with Proxy & Insight GUI. |
+| `wexts generate controller` | Adds a new NestJS controller and updates SDK. |
+| `wexts build` | Compiles API, Web, and Packages for prod. |
 
 ## 📄 License
 
