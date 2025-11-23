@@ -4,39 +4,37 @@
 ![license](https://img.shields.io/npm/l/wexts)
 ![node version](https://img.shields.io/node/v/wexts)
 
-**Wexts v2** is a modern, production-ready full-stack framework that seamlessly integrates **NestJS 11** and **Next.js 16**. Build type-safe applications with automatic API client generation, shared types, and exceptional developer experience.
+**Wexts v2** is a modern, production‑ready full‑stack framework that seamlessly integrates **NestJS 11** and **Next.js 16**. Build type‑safe applications with automatic API client generation, shared types, and an exceptional developer experience.
 
 > **Requirements:** Node.js 20.9.0+, PNPM 10.0.0+
 
 ## ✨ What's New in v2
 
 - 🎯 **Next.js 16** with Turbopack (stable) and React Compiler
-- 🚀 **NestJS 11** with latest architectural improvements  
+- 🚀 **NestJS 11** with latest architectural improvements
 - ⚡ **TypeScript 5.9** with enhanced type inference
 - 📦 **Modern Build System** with optimized bundling
 - 🔥 **React 19** full support
 
 ## 🚀 Features
 
-- **🔗 NestJS + Next.js Integration**: Seamless backend-frontend connection
-- **📦 All-in-One SDK**: Core utilities, HTTP client, decorators, and hooks in one package
-- **🎯 Type-Safe**: End-to-end TypeScript from database to UI
-- **🛠️ CLI Tools**: Scaffold projects, generate code, manage development
-- **⚡ Auto API Client**: Generate type-safe clients from NestJS controllers
-- **🔐 Auth Built-in**: Ready-to-use authentication hooks for Next.js
-- **📝 Configuration Management**: Environment-aware config loader
-- **🎨 React Hooks**: `useFusion()`, `useAuth()` for seamless API integration
+- **🔗 NestJS + Next.js Integration** – seamless backend‑frontend connection
+- **📦 All‑in‑One SDK** – core utilities, HTTP client, decorators, and hooks in one package
+- **🎯 Type‑Safe** – end‑to‑end TypeScript from database to UI
+- **🛠️ CLI Tools** – scaffold projects, generate code, manage development
+- **⚡ Auto API Client** – generate type‑safe clients from NestJS controllers
+- **🔐 Auth Built‑in** – ready‑to‑use authentication hooks for Next.js
+- **📝 Configuration Management** – environment‑aware config loader
+- **🎨 React Hooks** – `useWexts()`, `useAuth()` for seamless API integration
 
 ---
 
 ## 📦 Installation
 
-### Global CLI
+### Global CLI (run without installing globally)
 
 ```bash
-npm install -g wexts
-# or
-yarn global add wexts
+npx wexts
 ```
 
 ### Project Dependency
@@ -54,16 +52,16 @@ yarn add wexts
 ### Create New Project
 
 ```bash
-fusion create my-app --template monorepo
+npx wexts create my-app --template monorepo
 cd my-app
-fusion dev
+npx wexts dev
 ```
 
 This creates:
-- `apps/api/` - NestJS 10 backend
-- `apps/web/` - Next.js 16 frontend
-- `packages/types/` - Shared TypeScript definitions
-- `packages/api-client/` - Auto-generated SDK
+- `apps/api/` – NestJS 11 backend
+- `apps/web/` – Next.js 16 frontend
+- `packages/types/` – shared TypeScript definitions
+- `packages/api-client/` – auto‑generated SDK
 
 ---
 
@@ -73,24 +71,24 @@ This creates:
 
 ```typescript
 import { Controller, Get, Post, Body } from '@nestjs/common';
-import { FusionController, FusionGet, FusionPost } from 'wexts/nest';
+import { WextsController, WextsGet, WextsPost } from 'wexts/nest';
 
-@FusionController('users')
+@WextsController('users')
 @Controller('users')
 export class UsersController {
-    @FusionGet()
-    async findAll() {
-        return this.usersService.findAll();
-    }
+  @WextsGet()
+  async findAll() {
+    return this.usersService.findAll();
+  }
 
-    @FusionPost()
-    async create(@Body() createUserDto: CreateUserDto) {
-        return this.usersService.create(createUserDto);
-    }
+  @WextsPost()
+  async create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
 }
 ```
 
-**Benefits**: The `@FusionController` and `@FusionRoute` decorators add metadata for automatic API client generation.
+**Benefits**: The `WextsController` and `WextsRoute` decorators add metadata for automatic API client generation.
 
 ---
 
@@ -100,18 +98,18 @@ export class UsersController {
 
 ```tsx
 // app/layout.tsx
-import { FusionProvider } from 'wexts/next';
+import { WextsProvider } from 'wexts/next';
 
-export default function RootLayout({ children }) {
-    return (
-        <html lang="en">
-            <body>
-                <FusionProvider baseUrl={process.env.NEXT_PUBLIC_API_URL || '/api'}>
-                    {children}
-                </FusionProvider>
-            </body>
-        </html>
-    );
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <WextsProvider baseUrl={process.env.NEXT_PUBLIC_API_URL || '/api'}>
+          {children}
+        </WextsProvider>
+      </body>
+    </html>
+  );
 }
 ```
 
@@ -119,26 +117,28 @@ export default function RootLayout({ children }) {
 
 ```tsx
 'use client';
-import { useFusion, useAuth } from 'wexts/next';
+import { useWexts, useAuth } from 'wexts/next';
 import { useEffect, useState } from 'react';
 
 export default function UsersPage() {
-    const { client } = useFusion();
-    const { user, isAuthenticated } = useAuth();
-    const [users, setUsers] = useState([]);
+  const { client } = useWexts();
+  const { user, isAuthenticated } = useAuth();
+  const [users, setUsers] = useState([]);
 
-    useEffect(() => {
-        client.get<User[]>('/users').then(setUsers);
-    }, []);
+  useEffect(() => {
+    client.get<User[]>('/users').then(setUsers);
+  }, []);
 
-    return (
-        <div>
-            {isAuthenticated && <p>Welcome, {user.name}!</p>}
-            <ul>
-                {users.map(u => <li key={u.id}>{u.name}</li>)}
-            </ul>
-        </div>
-    );
+  return (
+    <div>
+      {isAuthenticated && <p>Welcome, {user.name}!</p>}
+      <ul>
+        {users.map(u => (
+          <li key={u.id}>{u.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 ```
 
@@ -153,23 +153,23 @@ import { apiFetcher } from 'wexts/client';
 const users = await apiFetcher.get<User[]>('/users');
 
 // POST request
-const newUser = await apiFetcher.post('/users', { 
-    name: 'John',
-    email: 'john@example.com' 
+const newUser = await apiFetcher.post('/users', {
+  name: 'John',
+  email: 'john@example.com',
 });
 
 // Automatic Bearer token from localStorage
-// Token stored as 'fusion_token'
+// Token stored as 'wexts_token'
 ```
 
 ---
 
-### Configuration
+## ⚙️ Configuration
 
 ```typescript
 import { config } from 'wexts';
 
-// Load from fusion.config.json or environment variables
+// Load from wexts.config.json or environment variables
 const dbUrl = config.load('database');
 const apiKey = config.load('apiKey', 'default-key');
 
@@ -177,25 +177,25 @@ const apiKey = config.load('apiKey', 'default-key');
 config.set('feature_flags', { newUI: true });
 ```
 
----
+Create `wexts.config.json` in your project root:
 
-### Logging
+```json
+{
+  "database": "postgresql://localhost/mydb",
+  "apiPort": 5050,
+  "webPort": 3000,
+  "jwt": {
+    "secret": "your-secret-key",
+    "expiresIn": "7d"
+  }
+}
+```
 
-```typescript
-import { logger, createLogger, LogLevel } from 'wexts';
+**Environment Variables**: Prefix with `WEXTS_`
 
-logger.info('Application started');
-logger.error('Connection failed:', error);
-logger.success('Build complete!');
-
-// Custom logger
-const apiLogger = createLogger({ 
-    prefix: '[API]',
-    level: LogLevel.DEBUG,
-    timestamp: true
-});
-
-apiLogger.debug('Detailed debug info');
+```bash
+WEXTS_DATABASE=postgresql://localhost/mydb
+WEXTS_JWT__SECRET=your-secret-key
 ```
 
 ---
@@ -204,17 +204,19 @@ apiLogger.debug('Detailed debug info');
 
 ```bash
 # Create new project
-fusion create <name> [--template monorepo|api|web]
+wexts create <name> [--template monorepo|api|web]
 
 # Start development servers
-fusion dev [--port <port>]
+wexts dev [--port <port>]
 
 # Build for production
-fusion build
+wexts build
 
 # Generate code
-fusion generate controller <name>
-fusion g module <name>
+wexts generate controller <name>
+
+# Shortcut for generate
+wexts g module <name>
 ```
 
 ---
@@ -223,60 +225,47 @@ fusion g module <name>
 
 ### Core Modules
 
-#### `wexts` (Main)
-
 ```typescript
 import { Core, Config, Insight, Nest, Next } from 'wexts';
 ```
 
-- **`Core`**: Process management, filesystem utilities
-- **`Config`**: Configuration loader
-- **`Insight`**: Logging and metrics
-- **`Nest`**: NestJS decorators and helpers
-- **`Next`**: Next.js providers and hooks
+- **Core** – process management, filesystem utilities
+- **Config** – configuration loader
+- **Insight** – logging and metrics
+- **Nest** – NestJS decorators and helpers
+- **Next** – Next.js providers and hooks
 
-#### `wexts/client`
+### `wexts/client`
 
 ```typescript
-import { FusionFetcher, apiFetcher } from 'wexts/client';
+import { WextsFetcher, apiFetcher } from 'wexts/client';
 ```
 
-- **`FusionFetcher`**: HTTP client class
-- **`apiFetcher`**: Singleton instance
+- **WextsFetcher** – HTTP client class
+- **apiFetcher** – singleton instance
 
-#### `wexts/nest`
+### `wexts/nest`
 
 ```typescript
-import { 
-    FusionController,
-    FusionGet,
-    FusionPost,
-    FusionPut,
-    FusionDelete 
-} from 'wexts/nest';
+import { WextsController, WextsGet, WextsPost, WextsPut, WextsDelete } from 'wexts/nest';
 ```
 
-- NestJS decorators for API codegen
-- Works alongside standard `@nestjs/common` decorators
+- NestJS decorators for API codegen (works alongside standard `@nestjs/common` decorators)
 
-#### `wexts/next`
+### `wexts/next`
 
 ```typescript
-import { 
-    FusionProvider,
-    useFusion,
-    useAuth 
-} from 'wexts/next';
+import { WextsProvider, useWexts, useAuth } from 'wexts/next';
 ```
 
-- **`FusionProvider`**: React Context provider for API client
-- **`useFusion()`**: Access API client in components
-- **`useAuth()`**: Authentication state management
+- **WextsProvider** – React context provider for API client
+- **useWexts()** – access API client in components
+- **useAuth()** – authentication state management
 
-#### `wexts/types`
+### `wexts/types`
 
 ```typescript
-import type { User, ApiResponse, FusionConfig } from 'wexts/types';
+import type { User, ApiResponse, WextsConfig } from 'wexts/types';
 ```
 
 - Shared TypeScript type definitions
@@ -285,124 +274,21 @@ import type { User, ApiResponse, FusionConfig } from 'wexts/types';
 
 ## 🏗️ Project Structure
 
-When you create a new project with `fusion create`, you get:
+When you create a project with `wexts create`, you get:
 
-```
+```text
 my-app/
-├── apps/
-│   ├── api/                # NestJS 10 backend
-│   │   ├── src/
-│   │   │   ├── main.ts
-│   │   │   ├── app.module.ts
-│   │   │   └── users/
-│   │   │       ├── users.controller.ts
-│   │   │       └── users.service.ts
-│   │   └── package.json
-│   │
-│   └── web/                # Next.js 16 frontend
-│       ├── app/
-│       │   ├── layout.tsx
-│       │   ├── page.tsx
-│       │   └── users/
-│       │       └── page.tsx
-│       └── package.json
-│
-├── packages/
-│   ├── types/              # Shared DTOs
-│   │   └── src/
-│   │       ├── user.ts
-│   │       └── index.ts
-│   │
-│   └── api-client/         # Auto-generated SDK
-│       └── src/
-│           └── index.ts
-│
-├── turbo.json              # TurboRepo config
-├── package.json            # Root package
-└── fusion.config.json      # Fusion configuration
-```
-
----
-
-## ⚙️ Configuration
-
-Create `fusion.config.json` in your project root:
-
-```json
-{
-    "database": "postgresql://localhost/mydb",
-    "apiPort": 5050,
-    "webPort": 3000,
-    "jwt": {
-        "secret": "your-secret-key",
-        "expiresIn": "7d"
-    }
-}
-```
-
-Access via:
-
-```typescript
-import { config } from 'wexts';
-
-const dbUrl = config.load('database');
-const jwtConfig = config.load('jwt');
-```
-
-**Environment Variables**: Prefix with `FUSION_`
-
-```bash
-FUSION_DATABASE=postgresql://localhost/mydb
-FUSION_JWT__SECRET=your-secret-key
-```
-
----
-
-## 🔐 Authentication Example
-
-### Backend (NestJS)
-
-```typescript
-import { Controller, Post, Body } from '@nestjs/common';
-import { FusionPost } from 'wexts/nest';
-
-@Controller('auth')
-export class AuthController {
-    @FusionPost()
-    @Post('login')
-    async login(@Body() credentials: LoginDto) {
-        const token = await this.authService.validateUser(credentials);
-        return { token, user: { id: 1, email: credentials.email } };
-    }
-}
-```
-
-### Frontend (Next.js)
-
-```tsx
-'use client';
-import { useAuth } from 'wexts/next';
-
-export default function LoginPage() {
-    const { login, user, isAuthenticated, loading } = useAuth();
-
-    const handleLogin = async (e: FormEvent) => {
-        e.preventDefault();
-        await login('user@example.com', 'password');
-        // Automatically redirects or updates UI
-    };
-
-    if (loading) return <p>Loading...</p>;
-    if (isAuthenticated) return <p>Welcome, {user.name}!</p>;
-
-    return (
-        <form onSubmit={handleLogin}>
-            <input type="email" required />
-            <input type="password" required />
-            <button type="submit">Login</button>
-        </form>
-    );
-}
+ ├── apps/
+ │   ├── api/   # NestJS 11 backend
+ │   │   └── src/
+ │   └── web/   # Next.js 16 frontend
+ │       └── app/
+ ├── packages/
+ │   ├── types/      # Shared DTOs
+ │   └── api-client/  # Auto‑generated SDK
+ ├── turbo.json
+ ├── package.json
+ └── wexts.config.json
 ```
 
 ---
@@ -412,7 +298,7 @@ export default function LoginPage() {
 ### Build
 
 ```bash
-fusion build
+wexts build
 ```
 
 ### Deploy API (NestJS)

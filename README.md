@@ -1,209 +1,340 @@
-# wexts Framework Specification
+# Wexts Framework v2
 
-The definitive guide to the unified **Next.js 16** + **NestJS 10** monorepo architecture. Combining backend power with frontend speed.
+![npm version](https://img.shields.io/npm/v/wexts)
+![license](https://img.shields.io/npm/l/wexts)
+![node version](https://img.shields.io/node/v/wexts)
+
+**Wexts v2** is a modern, production‑ready full‑stack framework that seamlessly integrates **NestJS 11** and **Next.js 16**. Build type‑safe applications with automatic API client generation, shared types, and an exceptional developer experience.
+
+> **Requirements:** Node.js 20.9.0+, PNPM 10.0.0+
+
+## ✨ What's New in v2
+
+- 🎯 **Next.js 16** with Turbopack (stable) and React Compiler
+- 🚀 **NestJS 11** with latest architectural improvements
+- ⚡ **TypeScript 5.9** with enhanced type inference
+- 📦 **Modern Build System** with optimized bundling
+- 🔥 **React 19** full support
 
 ## 🚀 Features
 
-- **Auto-Linking** - Automatic type-safe API client generation from NestJS controllers
-- **Monorepo Native** - Built on TurboRepo with shared types and packages
-- **React 19 + Next.js 16** - Latest features including Server Components and PPR
-- **NestJS 10** - Modern backend with Fastify adapter
-- **Wexts Insight** - Development GUI for monitoring RPC calls and database
-- **Type-Safe** - End-to-end TypeScript from database to client
-- **Prisma Integration** - Type-safe database operations
-- **Modern UI** - Pre-configured with Tailwind CSS, Lucide Icons, and React Hot Toast
+- **🔗 NestJS + Next.js Integration** – seamless backend‑frontend connection
+- **📦 All‑in‑One SDK** – core utilities, HTTP client, decorators, and hooks in one package
+- **🎯 Type‑Safe** – end‑to‑end TypeScript from database to UI
+- **🛠️ CLI Tools** – scaffold projects, generate code, manage development
+- **⚡ Auto API Client** – generate type‑safe clients from NestJS controllers
+- **🔐 Auth Built‑in** – ready‑to‑use authentication hooks for Next.js
+- **📝 Configuration Management** – environment‑aware config loader
+- **🎨 React Hooks** – `useWexts()`, `useAuth()` for seamless API integration
+
+---
 
 ## 📦 Installation
 
+### Global CLI (run without installing globally)
+
 ```bash
-npm install -g wexts
+npx wexts
 ```
 
-## 🎯 Quick Start
+### Project Dependency
 
 ```bash
-# Create a new project
-wexts init my-app
+npm install wexts
+# or
+yarn add wexts
+```
 
-# Navigate to project
+---
+
+## 🏁 Quick Start
+
+### Create New Project
+
+```bash
+npx wexts create my-app --template monorepo
 cd my-app
-
-# Start development servers
-wexts dev
-
-# Build for production
-wexts build
+npx wexts dev
 ```
 
-## 🏗️ Monorepo Structure
+This creates:
+- `apps/api/` – NestJS 11 backend
+- `apps/web/` – Next.js 16 frontend
+- `packages/types/` – shared TypeScript definitions
+- `packages/api-client/` – auto‑generated SDK
 
-Optimized for TurboRepo. Uses **React 19 (RC)** and **NestJS 10** by default.
+---
 
+## 📚 Usage
+
+### NestJS Backend
+
+```typescript
+import { Controller, Get, Post, Body } from '@nestjs/common';
+import { WextsController, WextsGet, WextsPost } from 'wexts/nest';
+
+@WextsController('users')
+@Controller('users')
+export class UsersController {
+  @WextsGet()
+  async findAll() {
+    return this.usersService.findAll();
+  }
+
+  @WextsPost()
+  async create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
+}
 ```
-wexts/
- ├── wexts.config.ts
- ├── apps/
- │    ├── web/      (Next.js 16 + React 19)
- │    └── api/      (NestJS 10)
- ├── packages/
- │    ├── types/    (Shared DTOs)
- │    ├── core/     (Validation/Utils)
- │    ├── api-client/(Auto-generated SDK)
- │    └── ui/       (Tailwind v4 + RSC)
- ├── cli/
- ├── turbo.json
- └── package.json
+
+**Benefits**: The `WextsController` and `WextsRoute` decorators add metadata for automatic API client generation.
+
+---
+
+### Next.js Frontend
+
+#### Setup Provider
+
+```tsx
+// app/layout.tsx
+import { WextsProvider } from 'wexts/next';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <WextsProvider baseUrl={process.env.NEXT_PUBLIC_API_URL || '/api'}>
+          {children}
+        </WextsProvider>
+      </body>
+    </html>
+  );
+}
 ```
 
-## 📚 SDK Publishing Guide
+#### Use in Components
 
-**For Package Authors**
+```tsx
+'use client';
+import { useWexts, useAuth } from 'wexts/next';
+import { useEffect, useState } from 'react';
 
-To publish `wexts` to npm, use the following boilerplate for the `packages/api-client` directory.
+export default function UsersPage() {
+  const { client } = useWexts();
+  const { user, isAuthenticated } = useAuth();
+  const [users, setUsers] = useState([]);
 
-### packages/api-client/package.json
+  useEffect(() => {
+    client.get<User[]>('/users').then(setUsers);
+  }, []);
+
+  return (
+    <div>
+      {isAuthenticated && <p>Welcome, {user.name}!</p>}
+      <ul>
+        {users.map(u => (
+          <li key={u.id}>{u.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+---
+
+### HTTP Client
+
+```typescript
+import { apiFetcher } from 'wexts/client';
+
+// GET request
+const users = await apiFetcher.get<User[]>('/users');
+
+// POST request
+const newUser = await apiFetcher.post('/users', {
+  name: 'John',
+  email: 'john@example.com',
+});
+
+// Automatic Bearer token from localStorage
+// Token stored as 'wexts_token'
+```
+
+---
+
+## ⚙️ Configuration
+
+```typescript
+import { config } from 'wexts';
+
+// Load from wexts.config.json or environment variables
+const dbUrl = config.load('database');
+const apiKey = config.load('apiKey', 'default-key');
+
+// Set runtime config
+config.set('feature_flags', { newUI: true });
+```
+
+Create `wexts.config.json` in your project root:
 
 ```json
 {
-  "name": "wexts-sdk",
-  "version": "0.0.1",
-  "description": "Auto-generated API client for wexts",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "sideEffects": false,
-  "files": [
-    "dist"
-  ],
-  "exports": {
-    ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
-  "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "release": "npm run build && npm publish --access public",
-    "lint": "eslint src",
-    "prepublishOnly": "npm run build"
-  },
-  "keywords": ["wexts", "sdk", "nestjs", "nextjs"],
-  "author": "wexts Team",
-  "license": "MIT",
-  "devDependencies": {
-    "tsup": "^8.0.0",
-    "typescript": "^5.3.0"
-  },
-  "publishConfig": {
-    "access": "public"
+  "database": "postgresql://localhost/mydb",
+  "apiPort": 5050,
+  "webPort": 3000,
+  "jwt": {
+    "secret": "your-secret-key",
+    "expiresIn": "7d"
   }
 }
 ```
 
-### packages/api-client/tsup.config.ts
+**Environment Variables**: Prefix with `WEXTS_`
 
-```typescript
-import { defineConfig } from 'tsup';
-
-export default defineConfig({
-  entry: ['src/index.ts'],
-  format: ['cjs', 'esm'],
-  dts: true,
-  splitting: false,
-  sourcemap: true,
-  clean: true,
-});
-```
-
-### packages/api-client/src/fetcher.ts
-
-```typescript
-// packages/api-client/src/fetcher.ts
-
-export class WextsFetcher {
-  private baseUrl: string;
-  
-  constructor(baseUrl: string = '/api') {
-    this.baseUrl = baseUrl;
-  }
-
-  private async request<T>(method: string, path: string, body?: any): Promise<T> {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-
-    // Automatically attach Wexts Token if present
-    if (typeof window !== 'undefined') {
-       // Note: In the actual app we use cookies (wexts_token), but for SDK usage:
-       const token = localStorage.getItem('wexts_token');
-       if (token) headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const response = await fetch(`${this.baseUrl}${path}`, {
-      method,
-      headers,
-      body: body ? JSON.stringify(body) : undefined,
-    });
-
-    if (!response.ok) {
-      throw new Error(`Wexts API Error: ${response.statusText}`);
-    }
-
-    return response.json();
-  }
-
-  get<T>(path: string) { return this.request<T>('GET', path); }
-  post<T>(path: string, body: any) { return this.request<T>('POST', path, body); }
-  put<T>(path: string, body: any) { return this.request<T>('PUT', path, body); }
-  delete<T>(path: string) { return this.request<T>('DELETE', path); }
-}
-
-export const apiFetcher = new WextsFetcher();
-```
-
-To publish:
 ```bash
-npm publish --access public
+WEXTS_DATABASE=postgresql://localhost/mydb
+WEXTS_JWT__SECRET=your-secret-key
 ```
 
-## ⚙️ Global Configuration
+---
 
-The `wexts.config.ts` file controls the monorepo behavior, including the developer proxy that routes traffic from Next.js to NestJS automatically.
+## 🛠 CLI Commands
+
+```bash
+# Create new project
+wexts create <name> [--template monorepo|api|web]
+
+# Start development servers
+wexts dev [--port <port>]
+
+# Build for production
+wexts build
+
+# Generate code
+wexts generate controller <name>
+
+# Shortcut for generate
+wexts g module <name>
+```
+
+---
+
+## 📖 API Reference
+
+### Core Modules
 
 ```typescript
-import { defineConfig } from 'wexts';
-
-export default defineConfig({
-  apps: {
-    web: 'apps/web',   // Next.js 16 (App Router + PPR)
-    api: 'apps/api'    // NestJS 10 (Fastify)
-  },
-  dev: {
-    webPort: 3000,
-    apiPort: 5050, // Auto-random if not set
-    proxy: true    // Proxies /api/* from Web -> Api
-  },
-  ui: {
-    engine: 'tailwind-v4' // Oxide Engine
-  },
-  codegen: {
-    output: 'packages/api-client',
-    watch: true
-  }
-});
+import { Core, Config, Insight, Nest, Next } from 'wexts';
 ```
 
-## 💻 CLI Commands
+- **Core** – process management, filesystem utilities
+- **Config** – configuration loader
+- **Insight** – logging and metrics
+- **Nest** – NestJS decorators and helpers
+- **Next** – Next.js providers and hooks
 
-| Command | Description |
-| :--- | :--- |
-| `wexts new module [name]` | Creates Controller, Service, and Next.js Page. |
-| `wexts dev` | Starts monorepo in watch mode with Proxy & Insight GUI. |
-| `wexts generate controller` | Adds a new NestJS controller and updates SDK. |
-| `wexts build` | Compiles API, Web, and Packages for prod. |
+### `wexts/client`
+
+```typescript
+import { WextsFetcher, apiFetcher } from 'wexts/client';
+```
+
+- **WextsFetcher** – HTTP client class
+- **apiFetcher** – singleton instance
+
+### `wexts/nest`
+
+```typescript
+import { WextsController, WextsGet, WextsPost, WextsPut, WextsDelete } from 'wexts/nest';
+```
+
+- NestJS decorators for API codegen (works alongside standard `@nestjs/common` decorators)
+
+### `wexts/next`
+
+```typescript
+import { WextsProvider, useWexts, useAuth } from 'wexts/next';
+```
+
+- **WextsProvider** – React context provider for API client
+- **useWexts()** – access API client in components
+- **useAuth()** – authentication state management
+
+### `wexts/types`
+
+```typescript
+import type { User, ApiResponse, WextsConfig } from 'wexts/types';
+```
+
+- Shared TypeScript type definitions
+
+---
+
+## 🏗️ Project Structure
+
+When you create a project with `wexts create`, you get:
+
+```text
+my-app/
+ ├── apps/
+ │   ├── api/   # NestJS 11 backend
+ │   │   └── src/
+ │   └── web/   # Next.js 16 frontend
+ │       └── app/
+ ├── packages/
+ │   ├── types/      # Shared DTOs
+ │   └── api-client/  # Auto‑generated SDK
+ ├── turbo.json
+ ├── package.json
+ └── wexts.config.json
+```
+
+---
+
+## 🚀 Deployment
+
+### Build
+
+```bash
+wexts build
+```
+
+### Deploy API (NestJS)
+
+```bash
+cd apps/api
+npm run build
+npm run start:prod
+```
+
+### Deploy Web (Next.js)
+
+```bash
+cd apps/web
+npm run build
+npm start
+```
+
+---
 
 ## 📄 License
 
-MIT © wexts Team
+MIT © [wexts Team](https://github.com/ziadmustafa1/wexts)
+
+---
+
+## 🤝 Contributing
+
+Contributions welcome! Please read our contributing guidelines.
+
+## 📬 Support
+
+- **GitHub**: [ziadmustafa1/wexts](https://github.com/ziadmustafa1/wexts)
+- **Issues**: [Report bugs](https://github.com/ziadmustafa1/wexts/issues)
+- **Discussions**: [Community forums](https://github.com/ziadmustafa1/wexts/discussions)
+
+---
+
+**Built with ❤️ by the wexts Team**
