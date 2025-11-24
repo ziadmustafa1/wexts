@@ -54,7 +54,7 @@ yarn add wexts
 ```bash
 npx wexts create my-app --template monorepo
 cd my-app
-npx wexts dev
+pnpm dev
 ```
 
 This creates:

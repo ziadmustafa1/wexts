@@ -26,7 +26,7 @@ async function bootstrap() {
     const port = process.env.PORT || 5050;
     await app.listen(port, '0.0.0.0');
 
-    console.log(`🚀 Fusion API running on http://localhost:${port}`);
+    console.log(`🚀 wexts API running on http://localhost:${port}`);
 }
 
 bootstrap();

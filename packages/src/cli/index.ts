@@ -247,6 +247,14 @@ async function createProject(projectName: string, template: string) {
         if (fs.existsSync(apiTemplatePath)) {
             fs.cpSync(apiTemplatePath, apiDestPath, { recursive: true });
             logger.success('  - Copied API template');
+
+            // Copy .env.example to .env
+            const envExamplePath = path.join(apiDestPath, '.env.example');
+            const envPath = path.join(apiDestPath, '.env');
+            if (fs.existsSync(envExamplePath) && !fs.existsSync(envPath)) {
+                fs.copyFileSync(envExamplePath, envPath);
+                logger.success('  - Created .env from .env.example');
+            }
         } else {
             logger.warn(`  ⚠️ API template not found at ${apiTemplatePath}`);
         }
@@ -268,22 +276,18 @@ async function createProject(projectName: string, template: string) {
         version: "0.0.0",
         private: true,
         scripts: {
-            "build": "turbo run build",
-            "dev": "turbo run dev",
-            "lint": "turbo run lint",
+            "build": "pnpm exec turbo build",
+            "dev": "pnpm exec turbo dev",
+            "lint": "pnpm exec turbo lint",
             "format": "prettier --write \"**/*.{ts,tsx,md}\""
         },
         devDependencies: {
-            "turbo": "latest",
+            "turbo": "^2.6.1",
             "prettier": "latest",
             "typescript": "^5.9.3",
             "wexts": "latest"
         },
-        packageManager: "pnpm@10.0.0",
-        workspaces: [
-            "apps/*",
-            "packages/*"
-        ]
+        packageManager: "pnpm@10.0.0"
     };
 
     fs.writeFileSync(
@@ -310,6 +314,16 @@ async function createProject(projectName: string, template: string) {
     fs.writeFileSync(
         path.join(projectPath, 'turbo.json'),
         JSON.stringify(turboJson, null, 2)
+    );
+
+    // Create pnpm-workspace.yaml
+    const pnpmWorkspace = `packages:
+  - 'apps/*'
+  - 'packages/*'
+`;
+    fs.writeFileSync(
+        path.join(projectPath, 'pnpm-workspace.yaml'),
+        pnpmWorkspace
     );
 
     logger.success('✅ Project structure created');

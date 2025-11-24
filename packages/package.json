@@ -1,6 +1,6 @@
 {
     "name": "wexts",
-    "version": "2.0.8",
+    "version": "2.0.9",
     "description": "Modern full-stack framework combining NestJS 11 and Next.js 16",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",

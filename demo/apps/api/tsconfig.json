@@ -16,6 +16,25 @@
         "noImplicitAny": false,
         "strictBindCallApply": false,
         "forceConsistentCasingInFileNames": false,
-        "noFallthroughCasesInSwitch": false
+        "noFallthroughCasesInSwitch": false,
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "paths": {
+            "wexts/nest": [
+                "node_modules/wexts/dist/nest/index"
+            ],
+            "wexts/next": [
+                "node_modules/wexts/dist/next/index"
+            ],
+            "wexts/client": [
+                "node_modules/wexts/dist/client/index"
+            ],
+            "wexts/types": [
+                "node_modules/wexts/dist/types/index"
+            ],
+            "wexts": [
+                "node_modules/wexts/dist/index"
+            ]
+        }
     }
 }

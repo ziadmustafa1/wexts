@@ -1,27 +1,27 @@
 import { Controller, Post, Get, Body, UseGuards, Request } from '@nestjs/common';
-import { FusionController, FusionPost, FusionGet } from 'wexts/nest';
+import { FusionController as WextsController, FusionPost as WextsPost, FusionGet as WextsGet } from 'wexts/nest';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
 
-@FusionController('auth')
+@WextsController('auth')
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService) { }
 
-    @FusionPost()
+    @WextsPost()
     @Post('register')
     async register(@Body() dto: RegisterDto) {
         return this.authService.register(dto);
     }
 
-    @FusionPost()
+    @WextsPost()
     @Post('login')
     async login(@Body() dto: LoginDto) {
         return this.authService.login(dto);
     }
 
-    @FusionGet()
+    @WextsGet()
     @Get('me')
     @UseGuards(JwtAuthGuard)
     async getMe(@Request() req) {

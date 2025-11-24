@@ -1,17 +1,18 @@
 {
-    "name": "fusion-demo",
-    "version": "1.0.0",
-    "private": true,
-    "scripts": {
-        "dev": "cd packages/fusionjs && node dist/cli/index.js dev",
-        "build": "turbo run build",
-        "test": "turbo run test"
-    },
-    "workspaces": [
-        "apps/*",
-        "packages/*"
-    ],
-    "devDependencies": {
-        "turbo": "^1.11.0"
-    }
+  "name": "demo",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "pnpm exec turbo build --filter='./apps/*'",
+    "dev": "pnpm exec turbo dev",
+    "lint": "pnpm exec turbo lint --filter='./apps/*'",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+  },
+  "devDependencies": {
+    "turbo": "^2.6.1",
+    "prettier": "latest",
+    "typescript": "^5.9.3",
+    "wexts": "latest"
+  },
+  "packageManager": "pnpm@10.0.0"
 }
