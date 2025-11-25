@@ -1,15 +1,15 @@
 {
-  "name": "demo",
+  "name": "docs",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "pnpm exec turbo build",
-    "dev": "pnpm exec turbo dev",
-    "lint": "pnpm exec turbo lint",
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-    "turbo": "^2.6.1",
+    "turbo": "latest",
     "prettier": "latest",
     "typescript": "^5.9.3",
     "wexts": "latest"
