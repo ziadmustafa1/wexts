@@ -1,4 +1,4 @@
-import { WextsConfig } from '@wexts/config';
+import { WextsConfig } from 'wexts-config';
 
 const config: WextsConfig = {
     framework: 'wexts',

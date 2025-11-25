@@ -1,5 +1,5 @@
 import { BuildOptions, FileFsRef } from '@vercel/build-utils';
-import { detectWexts, loadWextsConfig } from '@wexts/config';
+import { detectWexts, loadWextsConfig } from 'wexts-config';
 import * as path from 'path';
 
 export const version = 3;

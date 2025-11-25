@@ -1,4 +1,4 @@
-import { loadWextsConfig, detectWexts } from '@wexts/config';
+import { loadWextsConfig, detectWexts } from 'wexts-config';
 import * as path from 'path';
 
 interface NetlifyUtils {

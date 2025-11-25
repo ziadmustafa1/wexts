@@ -1,5 +1,5 @@
 {
-    "name": "@wexts/netlify-plugin",
+    "name": "wexts-netlify-plugin",
     "version": "1.0.0",
     "description": "Netlify Build Plugin for WEXTS framework projects",
     "main": "dist/index.js",
@@ -29,7 +29,7 @@
         "directory": "packages/netlify-plugin"
     },
     "dependencies": {
-        "@wexts/config": "workspace:*"
+        "wexts-config": "workspace:*"
     },
     "devDependencies": {
         "@netlify/build": "^29.0.0",

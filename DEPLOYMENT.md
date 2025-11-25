@@ -90,7 +90,7 @@ railway up
   publish = "apps/web/.next"
 
 [[plugins]]
-  package = "@wexts/netlify-plugin"
+  package = "wexts-netlify-plugin"
 ```
 
 ### For Railway
@@ -233,18 +233,6 @@ jobs:
 
 ---
 
-## Troubleshooting
-
-### Build Fails
-
-1. **Check Node version**: Ensure platform uses Node 18+
-2. **Verify pnpm**: Some platforms need explicit pnpm configuration
-3. **Review logs**: Check build logs in platform dashboard
-
-### App Won't Start
-
-1. **Check start command**: Verify it matches package.json
-2. **Environment variables**: Ensure all required vars are set
 3. **Port configuration**: Some platforms set `PORT` automatically
 
 ### Slow Performance

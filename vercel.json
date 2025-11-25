@@ -1,7 +1,7 @@
 {
-    "buildCommand": "cd docs && pnpm run build",
+    "buildCommand": "turbo run build --filter=docs-web",
     "outputDirectory": "docs/apps/docs-web/.next",
     "installCommand": "pnpm install",
-    "framework": null,
-    "devCommand": "cd docs && pnpm run dev"
+    "framework": "nextjs",
+    "devCommand": "turbo run dev --filter=docs-web"
 }

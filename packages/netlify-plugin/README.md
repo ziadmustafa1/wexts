@@ -77,7 +77,7 @@ package = "@wexts/netlify-plugin"
 If you have a `wexts.config.ts`, the plugin will automatically use it:
 
 ```typescript
-import { WextsConfig } from '@wexts/config';
+import { WextsConfig } from 'wexts-config';
 
 const config: WextsConfig = {
   framework: 'wexts',

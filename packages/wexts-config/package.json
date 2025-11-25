@@ -1,5 +1,5 @@
 {
-    "name": "@wexts/config",
+    "name": "wexts-config",
     "version": "1.0.0",
     "description": "WEXTS framework configuration schema and utilities",
     "main": "dist/index.js",
@@ -18,10 +18,10 @@
     ],
     "author": "WEXTS Team",
     "license": "MIT",
-            "devDependencies": {
-                "typescript": "^5.9.3"
-            },
-            "publishConfig": {
-                "access": "public"
-            }
-        }
+    "devDependencies": {
+        "typescript": "^5.9.3"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}

@@ -40,7 +40,7 @@ Then in your `package.json`:
 Create a `wexts.config.ts` file in your project root:
 
 ```typescript
-import { WextsConfig } from '@wexts/config';
+import { WextsConfig } from 'wexts-config';
 
 const config: WextsConfig = {
   framework: 'wexts',
