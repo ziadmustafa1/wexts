@@ -1,0 +1,45 @@
+{
+    "name": "@wexts/vercel-builder",
+    "version": "1.0.0",
+    "description": "Vercel Build API integration for WEXTS framework",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "prepublishOnly": "pnpm run build"
+    },
+    "keywords": [
+        "wexts",
+        "vercel",
+        "builder",
+        "framework",
+        "deployment"
+    ],
+    "homepage": "https://wexts.vercel.app",
+    "author": "WEXTS Team",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ziadmustafa1/wexts.git",
+        "directory": "packages/vercel-builder"
+    },
+    "dependencies": {
+        "@wexts/config": "workspace:*"
+    },
+    "devDependencies": {
+        "@types/node": "^22.0.0",
+        "@vercel/build-utils": "^8.4.13",
+        "@vercel/next": "^4.15.3",
+        "typescript": "^5.9.3"
+    },
+    "peerDependencies": {
+        "@vercel/build-utils": "^7.0.0 || ^8.0.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}

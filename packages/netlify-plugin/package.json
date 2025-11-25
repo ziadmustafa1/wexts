@@ -1,0 +1,45 @@
+{
+    "name": "@wexts/netlify-plugin",
+    "version": "1.0.0",
+    "description": "Netlify Build Plugin for WEXTS framework projects",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist",
+        "manifest.yml"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "prepublishOnly": "pnpm run build"
+    },
+    "keywords": [
+        "wexts",
+        "netlify",
+        "plugin",
+        "framework",
+        "deployment"
+    ],
+    "homepage": "https://wexts.vercel.app",
+    "author": "WEXTS Team",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ziadmustafa1/wexts.git",
+        "directory": "packages/netlify-plugin"
+    },
+    "dependencies": {
+        "@wexts/config": "workspace:*"
+    },
+    "devDependencies": {
+        "@netlify/build": "^29.0.0",
+        "@types/node": "^22.0.0",
+        "typescript": "^5.9.3"
+    },
+    "peerDependencies": {
+        "@netlify/build": "^29.0.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}

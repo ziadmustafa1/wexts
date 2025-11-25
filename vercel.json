@@ -1,0 +1,7 @@
+{
+    "buildCommand": "cd docs && pnpm run build",
+    "outputDirectory": "docs/apps/docs-web/.next",
+    "installCommand": "pnpm install",
+    "framework": null,
+    "devCommand": "cd docs && pnpm run dev"
+}

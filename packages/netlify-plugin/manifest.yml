@@ -1,0 +1,14 @@
+name: wexts
+inputs:
+  - name: frontendDir
+    description: Frontend directory (relative to monorepo root)
+    required: false
+  - name: backendDir
+    description: Backend directory (relative to monorepo root)  
+    required: false
+  - name: buildCommand
+    description: Override the build command
+    required: false
+  - name: publishDir
+    description: Override the publish directory
+    required: false

@@ -1,5 +1,5 @@
 {
-  "name": "@ziad_mostafa/sdk",
+  "name": "wexts",
   "version": "2.0.0",
   "private": true,
   "description": "Modern full-stack framework combining Next.js 16 and NestJS 11",

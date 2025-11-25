@@ -1,0 +1,47 @@
+services:
+  # Frontend - Next.js
+  - type: web
+    name: wexts-frontend
+    runtime: node
+    region: oregon
+    plan: starter
+    branch: main
+    rootDir: apps/web
+    buildCommand: pnpm install && pnpm run build
+    startCommand: pnpm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 20.9.0
+      - key: PNPM_VERSION
+        value: 9.0.0
+    healthCheckPath: /
+    autoDeploy: true
+    
+  # Backend - NestJS (Optional)
+  - type: web  
+    name: wexts-backend
+    runtime: node
+    region: oregon
+    plan: starter
+    branch: main
+    rootDir: apps/api
+    buildCommand: pnpm install && pnpm run build
+    startCommand: pnpm start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DATABASE_URL
+        sync: false  # User provides this
+    healthCheckPath: /health
+    autoDeploy: true
+
+databases:
+  # PostgreSQL (Optional)
+  - name: wexts-db
+    databaseName: wexts
+    plan: starter
+    region: oregon

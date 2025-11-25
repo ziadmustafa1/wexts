@@ -1,0 +1,27 @@
+{
+    "name": "@wexts/config",
+    "version": "1.0.0",
+    "description": "WEXTS framework configuration schema and utilities",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch"
+    },
+    "keywords": [
+        "wexts",
+        "config",
+        "framework"
+    ],
+    "author": "WEXTS Team",
+    "license": "MIT",
+            "devDependencies": {
+                "typescript": "^5.9.3"
+            },
+            "publishConfig": {
+                "access": "public"
+            }
+        }

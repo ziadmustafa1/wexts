@@ -1,0 +1,24 @@
+[build]
+  command = "pnpm run build"
+  publish = "apps/docs-web/.next"
+  
+[build.environment]
+  NODE_VERSION = "20"
+  PNPM_VERSION = "10"
+
+[[plugins]]
+  package = "@wexts/netlify-plugin"
+  
+  [plugins.inputs]
+  frontendDir = "apps/docs-web"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
