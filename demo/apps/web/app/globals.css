@@ -4,54 +4,54 @@
 
 @layer base {
   :root {
-    /* Brand Colors - Deep Violet & Electric Purple */
-    --background: 260 30% 98%;
-    --foreground: 260 40% 10%;
-    
-    --primary: 265 89% 66%;
-    --primary-foreground: 210 40% 98%;
-    
-    --secondary: 260 20% 90%;
-    --secondary-foreground: 260 40% 10%;
-    
-    --muted: 260 20% 96%;
-    --muted-foreground: 260 20% 40%;
-    
-    --accent: 265 89% 96%;
-    --accent-foreground: 265 89% 66%;
-    
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    /* Brand Colors - Cyberpunk Industrial */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
 
-    --border: 260 20% 90%;
-    --input: 260 20% 90%;
-    --ring: 265 89% 66%;
-    
-    --radius: 1rem;
+    --primary: 189 94% 43%; /* Cyan/Teal */
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+
+    --accent: 35 92% 50%; /* Amber/Gold for gears */
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 189 94% 43%;
+
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: 260 40% 5%;
-    --foreground: 210 40% 98%;
-    
-    --primary: 265 89% 66%;
-    --primary-foreground: 210 40% 98%;
-    
-    --secondary: 260 30% 15%;
-    --secondary-foreground: 210 40% 98%;
-    
-    --muted: 260 30% 15%;
-    --muted-foreground: 215 20% 65%;
-    
-    --accent: 260 30% 15%;
-    --accent-foreground: 210 40% 98%;
-    
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 210 40% 98%;
-    
-    --border: 260 30% 15%;
-    --input: 260 30% 15%;
-    --ring: 265 89% 66%;
+    --background: 224 71% 4%; /* Very dark blue/black */
+    --foreground: 213 31% 91%;
+
+    --primary: 189 94% 43%; /* Neon Cyan */
+    --primary-foreground: 0 0% 95%;
+
+    --secondary: 222 47% 11%;
+    --secondary-foreground: 213 31% 91%;
+
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
+
+    --accent: 35 92% 50%; /* Amber/Gold */
+    --accent-foreground: 0 0% 95%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 213 31% 91%;
+
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+    --ring: 189 94% 43%;
   }
 }
 

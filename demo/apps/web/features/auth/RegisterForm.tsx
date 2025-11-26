@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Zap, Mail, Lock, ArrowRight, Loader2, UserPlus } from 'lucide-react';
 
 export function RegisterForm() {
@@ -53,8 +54,16 @@ export function RegisterForm() {
             <div className="w-full max-w-md p-8 relative z-10">
                 <Card className="glass border-white/20 shadow-2xl backdrop-blur-xl">
                     <CardHeader className="text-center">
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-6 mx-auto text-primary">
-                            <UserPlus className="w-8 h-8" />
+                        <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl mb-6 mx-auto overflow-hidden relative group">
+                            <div className="absolute inset-0  blur-xl group-hover:blur-2xl transition-all duration-500" />
+                            <Image
+                                src="/logor.png"
+                                alt="Wexts Logo"
+                                width={96}
+                                height={96}
+                                className="w-full h-full object-cover relative z-10"
+                                priority
+                            />
                         </div>
                         <CardTitle className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-indigo-600">
                             Create Account
