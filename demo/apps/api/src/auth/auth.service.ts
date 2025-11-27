@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
@@ -7,8 +7,8 @@ import { RegisterDto, LoginDto } from './dto/auth.dto';
 @Injectable()
 export class AuthService {
     constructor(
-        private prisma: PrismaService,
-        private jwtService: JwtService,
+        @Inject(PrismaService) private readonly prisma: PrismaService,
+        @Inject(JwtService) private readonly jwtService: JwtService,
     ) { }
 
     async register(dto: RegisterDto) {
@@ -39,9 +39,9 @@ export class AuthService {
             },
         });
 
-        const token = this.generateToken(user.id, user.email);
+        const access_token = this.generateToken(user.id, user.email);
 
-        return { user, token };
+        return { user, access_token };
     }
 
     async login(dto: LoginDto) {
@@ -61,7 +61,7 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        const token = this.generateToken(user.id, user.email);
+        const access_token = this.generateToken(user.id, user.email);
 
         return {
             user: {
@@ -69,7 +69,7 @@ export class AuthService {
                 email: user.email,
                 name: user.name,
             },
-            token,
+            access_token,
         };
     }
 

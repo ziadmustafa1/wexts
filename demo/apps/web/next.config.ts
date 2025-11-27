@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
             expire: 3600, // 1 hour
         },
     },
+    // REMOVED standalone output - not needed for dev mode
 };
 
 export default nextConfig;

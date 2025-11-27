@@ -1,0 +1,36 @@
+{
+    "compilerOptions": {
+        "target": "ES2020",
+        "module": "commonjs",
+        "lib": [
+            "ES2020"
+        ],
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "strict": false,
+        "resolveJsonModule": true,
+        "outDir": ".next/standalone",
+        "rootDir": ".",
+        "paths": {
+            "wexts-api": [
+                "../api/src/index.ts"
+            ],
+            "wexts-api/*": [
+                "../api/src/*"
+            ]
+        }
+    },
+    "include": [
+        "server.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        ".next",
+        "app",
+        "components",
+        "features",
+        "hooks",
+        "lib"
+    ]
+}

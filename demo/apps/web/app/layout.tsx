@@ -19,7 +19,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={inter.className}>
-                <WextsProvider baseUrl={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5050'}>
+                <WextsProvider baseUrl="/api">
                     {children}
                     <Toaster position="top-center" />
                 </WextsProvider>

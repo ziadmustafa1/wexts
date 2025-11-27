@@ -1,18 +1,32 @@
 {
-  "name": "demo",
-  "version": "0.0.0",
+  "name": "wexts-demo",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "pnpm exec turbo build",
-    "dev": "pnpm exec turbo dev",
-    "lint": "pnpm exec turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "dev": "tsx server.ts",
+    "build": "pnpm run build:api && pnpm run build:web && pnpm run build:server",
+    "build:api": "cd apps/api && npm run build",
+    "build:web": "cd apps/web && npm run build",
+    "build:server": "tsc",
+    "start": "node dist/server.js",
+    "postinstall": "cd apps/api && npx prisma generate"
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/platform-express": "^10.0.0",
+    "express": "^4.18.2",
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "turbo": "^2.6.1",
-    "prettier": "latest",
-    "typescript": "^5.9.3",
-    "wexts": "latest"
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0"
   },
-  "packageManager": "pnpm@10.0.0"
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }
