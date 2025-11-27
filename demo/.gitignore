@@ -1,0 +1,40 @@
+# Environment Variables
+.env
+.env.local
+.env.production
+
+# Node modules
+node_modules/
+dist/
+build/
+.next/
+.turbo/
+
+# Database
+*.db
+*.db-journal
+dev.db
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+.vercel
