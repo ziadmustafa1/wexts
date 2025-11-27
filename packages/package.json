@@ -1,7 +1,7 @@
 {
     "name": "wexts",
-    "version": "3.0.0",
-    "description": "Modern full-stack framework combining NestJS 11 and Next.js 16",
+    "version": "3.0.2",
+    "description": "Build production-ready full-stack apps with Next.js 16 + NestJS 11 in a unified runtime. Zero URLs. Zero configuration.",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
     "types": "./dist/index.d.ts",
@@ -10,7 +10,9 @@
     },
     "files": [
         "dist",
-        "templates"
+        "templates",
+        "README.md",
+        "LICENSE"
     ],
     "exports": {
         ".": {
@@ -56,14 +58,25 @@
         "nextjs",
         "monorepo",
         "typescript",
-        "react"
+        "react",
+        "unified-runtime",
+        "zero-config",
+        "type-safe",
+        "prisma",
+        "jwt-auth",
+        "docker",
+        "next.js",
+        "nest.js"
     ],
-    "author": "wexts Team",
+    "author": "WEXTS Team",
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/ziadmustafa1/wexts.git",
-        "directory": "packages/fusionjs"
+        "url": "https://github.com/ziadmustafa1/wexts.git"
+    },
+    "homepage": "https://github.com/ziadmustafa1/wexts#readme",
+    "bugs": {
+        "url": "https://github.com/ziadmustafa1/wexts/issues"
     },
     "engines": {
         "node": ">=20.9.0",

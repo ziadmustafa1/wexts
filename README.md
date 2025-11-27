@@ -1,340 +1,372 @@
-# Wexts Framework v2
+<div align="center">
 
-![npm version](https://img.shields.io/npm/v/wexts)
-![license](https://img.shields.io/npm/l/wexts)
-![node version](https://img.shields.io/node/v/wexts)
+```
+██╗    ██╗███████╗██╗  ██╗████████╗███████╗
+██║    ██║██╔════╝╚██╗██╔╝╚══██╔══╝██╔════╝
+██║ █╗ ██║█████╗   ╚███╔╝    ██║   ███████╗
+██║███╗██║██╔══╝   ██╔██╗    ██║   ╚════██║
+╚███╔███╔╝███████╗██╔╝ ██╗   ██║   ███████║
+ ╚══╝╚══╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝
+```
 
-**Wexts v2** is a modern, production‑ready full‑stack framework that seamlessly integrates **NestJS 11** and **Next.js 16**. Build type‑safe applications with automatic API client generation, shared types, and an exceptional developer experience.
+<h1>WEXTS Framework</h1>
 
-> **Requirements:** Node.js 20.9.0+, PNPM 10.0.0+
+**The Modern Full-Stack TypeScript Framework**
 
-## ✨ What's New in v2
+*Build production-ready apps with Next.js 16 + NestJS 11 in a single unified runtime*
 
-- 🎯 **Next.js 16** with Turbopack (stable) and React Compiler
-- 🚀 **NestJS 11** with latest architectural improvements
-- ⚡ **TypeScript 5.9** with enhanced type inference
-- 📦 **Modern Build System** with optimized bundling
-- 🔥 **React 19** full support
+[![npm version](https://img.shields.io/npm/v/wexts.svg)](https://www.npmjs.com/package/wexts)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 
-## 🚀 Features
+[Documentation](./docs) • [Examples](./demo) • [Templates](./packages/templates)
 
-- **🔗 NestJS + Next.js Integration** – seamless backend‑frontend connection
-- **📦 All‑in‑One SDK** – core utilities, HTTP client, decorators, and hooks in one package
-- **🎯 Type‑Safe** – end‑to‑end TypeScript from database to UI
-- **🛠️ CLI Tools** – scaffold projects, generate code, manage development
-- **⚡ Auto API Client** – generate type‑safe clients from NestJS controllers
-- **🔐 Auth Built‑in** – ready‑to‑use authentication hooks for Next.js
-- **📝 Configuration Management** – environment‑aware config loader
-- **🎨 React Hooks** – `useWexts()`, `useAuth()` for seamless API integration
+</div>
 
 ---
 
-## 📦 Installation
+## ✨ Why WEXTS?
 
-### Global CLI (run without installing globally)
-
-```bash
-npx wexts
+**Traditional Approach** 😓
+```
+Next.js (port 3000) ──proxy──> NestJS (port 3001)
+   ❌ Two servers
+   ❌ CORS configuration
+   ❌複雑な deployment
+   ❌ URL management hell
 ```
 
-### Project Dependency
-
-```bash
-npm install wexts
-# or
-yarn add wexts
+**WEXTS Approach** 🚀
+```
+Single Unified Server (port 3000)
+   ✅ One Node.js process
+   ✅ Smart routing
+   ✅ Zero configuration
+   ✅ No URLs in code!
 ```
 
 ---
 
-## 🏁 Quick Start
+## 🎯 Key Features
 
-### Create New Project
+<table>
+<tr>
+<td width="50%">
 
-```bash
-npx wexts create my-app --template monorepo
-cd my-app
-pnpm dev
-```
+### 🔥 Unified Runtime
+Run Next.js and NestJS in a **single Node.js process** with intelligent routing
 
-This creates:
-- `apps/api/` – NestJS 11 backend
-- `apps/web/` – Next.js 16 frontend
-- `packages/types/` – shared TypeScript definitions
-- `packages/api-client/` – auto‑generated SDK
-
----
-
-## 📚 Usage
-
-### NestJS Backend
-
+### 🎨 Zero URLs
+Type-safe API calls **without explicit URLs**
 ```typescript
-import { Controller, Get, Post, Body } from '@nestjs/common';
-import { WextsController, WextsGet, WextsPost } from 'wexts/nest';
+// No more this:
+fetch('http://localhost:3001/api/users')
 
-@WextsController('users')
-@Controller('users')
-export class UsersController {
-  @WextsGet()
-  async findAll() {
-    return this.usersService.findAll();
-  }
-
-  @WextsPost()
-  async create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
-}
+// Just this:
+api.users.findAll()
 ```
 
-**Benefits**: The `WextsController` and `WextsRoute` decorators add metadata for automatic API client generation.
+</td>
+<td width="50%">
+
+### ⚡ Developer Experience
+- Hot reload for both frontend and backend
+- Single `pnpm run dev` command
+- Automatic type safety
+- No proxy configuration
+
+### 🐳 Production Ready
+- One Docker container
+- Single deployment
+- Works on Vercel, Railway, Render
+- PostgreSQL ready
+
+</td>
+</tr>
+</table>
 
 ---
 
-### Next.js Frontend
-
-#### Setup Provider
-
-```tsx
-// app/layout.tsx
-import { WextsProvider } from 'wexts/next';
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body>
-        <WextsProvider baseUrl={process.env.NEXT_PUBLIC_API_URL || '/api'}>
-          {children}
-        </WextsProvider>
-      </body>
-    </html>
-  );
-}
-```
-
-#### Use in Components
-
-```tsx
-'use client';
-import { useWexts, useAuth } from 'wexts/next';
-import { useEffect, useState } from 'react';
-
-export default function UsersPage() {
-  const { client } = useWexts();
-  const { user, isAuthenticated } = useAuth();
-  const [users, setUsers] = useState([]);
-
-  useEffect(() => {
-    client.get<User[]>('/users').then(setUsers);
-  }, []);
-
-  return (
-    <div>
-      {isAuthenticated && <p>Welcome, {user.name}!</p>}
-      <ul>
-        {users.map(u => (
-          <li key={u.id}>{u.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-```
-
----
-
-### HTTP Client
-
-```typescript
-import { apiFetcher } from 'wexts/client';
-
-// GET request
-const users = await apiFetcher.get<User[]>('/users');
-
-// POST request
-const newUser = await apiFetcher.post('/users', {
-  name: 'John',
-  email: 'john@example.com',
-});
-
-// Automatic Bearer token from localStorage
-// Token stored as 'wexts_token'
-```
-
----
-
-## ⚙️ Configuration
-
-```typescript
-import { config } from 'wexts';
-
-// Load from wexts.config.json or environment variables
-const dbUrl = config.load('database');
-const apiKey = config.load('apiKey', 'default-key');
-
-// Set runtime config
-config.set('feature_flags', { newUI: true });
-```
-
-Create `wexts.config.json` in your project root:
-
-```json
-{
-  "database": "postgresql://localhost/mydb",
-  "apiPort": 5050,
-  "webPort": 3000,
-  "jwt": {
-    "secret": "your-secret-key",
-    "expiresIn": "7d"
-  }
-}
-```
-
-**Environment Variables**: Prefix with `WEXTS_`
-
-```bash
-WEXTS_DATABASE=postgresql://localhost/mydb
-WEXTS_JWT__SECRET=your-secret-key
-```
-
----
-
-## 🛠 CLI Commands
+## 🚀 Quick Start
 
 ```bash
 # Create new project
-wexts create <name> [--template monorepo|api|web]
+npx wexts create my-app
+cd my-app
 
-# Start development servers
-wexts dev [--port <port>]
+# Install dependencies
+pnpm install
+
+# Start development
+pnpm run dev
+```
+
+**That's it!** Open http://localhost:3000
+
+✅ Frontend on all routes (except `/api/*`)  
+✅ Backend API on `/api/*`  
+✅ Zero configuration needed!
+
+---
+
+## 📖 Project Structure
+
+```
+my-app/
+├── 🚀 server.ts              # Unified server (Next.js + NestJS)
+├── 📦 package.json           # Root configuration
+├── 🐳 Dockerfile             # Production Docker build
+├── 🐘 docker-compose.yml     # Docker + PostgreSQL
+│
+├── apps/
+│   ├── 🔙 api/                # NestJS Backend
+│   │   ├── src/
+│   │   │   ├── auth/          # Authentication (JWT)
+│   │   │   ├── users/         # Users module
+│   │   │   ├── todos/         # Example module
+│   │   │   └── prisma/        # Database ORM
+│   │   └── prisma/
+│   │       └── schema.prisma  # Database schema
+│   │
+│   └── 🎨 web/                # Next.js Frontend
+│       ├── app/               # App Router
+│       │   ├── login/         # Login page
+│       │   ├── register/      # Register page
+│       │   ├── dashboard/     # Dashboard
+│       │   └── actions/       # Server Actions
+│       ├── lib/
+│       │   └── api.ts         # 🔥 Type-safe SDK (NO URLS!)
+│       └── features/          # Feature modules
+│
+└── 📝 .env.example            # Environment template
+```
+
+---
+
+## 💡 The Magic - Zero URLs!
+
+### ❌ Old Way (Without WEXTS)
+```typescript
+// Frontend
+const response = await fetch('http://localhost:3001/api/users');
+const users = await response.json();
+
+// Problems:
+// - Hardcoded URLs
+// - No type safety
+// - CORS issues
+// - Environment management
+```
+
+### ✅ WEXTS Way
+```typescript
+// Frontend
+import { api } from '@/lib/api';
+
+const users = await api.users.findAll();
+//    ✅ Type-safe
+//    ✅ No URLs
+//    ✅ Auto-complete
+//    ✅ Works everywhere (Server/Client)
+```
+
+**The SDK is automatically connected to your backend!**
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────┐
+│         Unified Server (port 3000)          │
+│                                             │
+│  ┌────────────────┐    ┌─────────────────┐ │
+│  │   Next.js      │    │    NestJS       │ │
+│  │   Frontend     │    │    Backend      │ │
+│  │                │    │                 │ │
+│  │  - App Router  │    │  - Controllers  │ │
+│  │  - Server      │    │  - Services     │ │
+│  │    Actions     │    │  - Prisma ORM   │ │
+│  │  - Components  │    │  - JWT Auth     │ │
+│  └────────────────┘    └─────────────────┘ │
+│                                             │
+│         Smart Router Middleware             │
+│  ┌─────────────────────────────────────┐   │
+│  │  /api/* → NestJS                    │   │
+│  │  /*     → Next.js                   │   │
+│  └─────────────────────────────────────┘   │
+└─────────────────────────────────────────────┘
+                     │
+                     ▼
+              PostgreSQL/SQLite
+```
+
+---
+
+## 🛠️ Development
+
+```bash
+# Start dev server (both Next.js + NestJS)
+pnpm run dev
 
 # Build for production
-wexts build
+pnpm run build
 
-# Generate code
-wexts generate controller <name>
+# Start production server
+pnpm start
 
-# Shortcut for generate
-wexts g module <name>
+# Run Prisma migrations
+cd apps/api && npx prisma migrate dev
+
+# Generate Prisma client
+cd apps/api && npx prisma generate
 ```
 
 ---
 
-## 📖 API Reference
+## 🐳 Deployment
 
-### Core Modules
-
-```typescript
-import { Core, Config, Insight, Nest, Next } from 'wexts';
-```
-
-- **Core** – process management, filesystem utilities
-- **Config** – configuration loader
-- **Insight** – logging and metrics
-- **Nest** – NestJS decorators and helpers
-- **Next** – Next.js providers and hooks
-
-### `wexts/client`
-
-```typescript
-import { WextsFetcher, apiFetcher } from 'wexts/client';
-```
-
-- **WextsFetcher** – HTTP client class
-- **apiFetcher** – singleton instance
-
-### `wexts/nest`
-
-```typescript
-import { WextsController, WextsGet, WextsPost, WextsPut, WextsDelete } from 'wexts/nest';
-```
-
-- NestJS decorators for API codegen (works alongside standard `@nestjs/common` decorators)
-
-### `wexts/next`
-
-```typescript
-import { WextsProvider, useWexts, useAuth } from 'wexts/next';
-```
-
-- **WextsProvider** – React context provider for API client
-- **useWexts()** – access API client in components
-- **useAuth()** – authentication state management
-
-### `wexts/types`
-
-```typescript
-import type { User, ApiResponse, WextsConfig } from 'wexts/types';
-```
-
-- Shared TypeScript type definitions
-
----
-
-## 🏗️ Project Structure
-
-When you create a project with `wexts create`, you get:
-
-```text
-my-app/
- ├── apps/
- │   ├── api/   # NestJS 11 backend
- │   │   └── src/
- │   └── web/   # Next.js 16 frontend
- │       └── app/
- ├── packages/
- │   ├── types/      # Shared DTOs
- │   └── api-client/  # Auto‑generated SDK
- ├── turbo.json
- ├── package.json
- └── wexts.config.json
-```
-
----
-
-## 🚀 Deployment
-
-### Build
+### Option 1: Docker (Recommended)
 
 ```bash
-wexts build
+# Build and run everything
+docker-compose up -d
+
+# Your app is live at http://localhost:3000
+# Includes PostgreSQL database!
 ```
 
-### Deploy API (NestJS)
+### Option 2: Railway (Easiest)
+
+1. Push to GitHub
+2. Connect Railway to your repo
+3. Add environment variables
+4. Deploy! ✨
+
+Railway auto-detects WEXTS and deploys everything.
+
+### Option 3: Render / VPS
 
 ```bash
-cd apps/api
-npm run build
-npm run start:prod
-```
+# Build
+pnpm run build
 
-### Deploy Web (Next.js)
-
-```bash
-cd apps/web
-npm run build
-npm start
+# Start with environment variables
+export DATABASE_URL="postgresql://..."
+export JWT_SECRET="your-secret"
+pnpm start
 ```
 
 ---
 
-## 📄 License
+## 🔐 Environment Variables
 
-MIT © [wexts Team](https://github.com/ziadmustafa1/wexts)
+Create `.env` in root:
+
+```env
+# JWT Authentication
+JWT_SECRET=your-super-secret-jwt-key-change-in-production
+JWT_EXPIRES_IN=7d
+
+# Database (Development - SQLite)
+DATABASE_URL="file:./apps/api/dev.db"
+
+# Database (Production - PostgreSQL)
+# DATABASE_URL="postgresql://user:password@host:5432/dbname"
+
+# Server
+PORT=3000
+NODE_ENV=development
+```
+
+---
+
+## 📚 API Examples
+
+### Authentication
+
+```typescript
+import { api } from '@/lib/api';
+
+// Register
+const { user, access_token } = await api.auth.register({
+    email: 'user@example.com',
+    password: 'password123',
+    name: 'John Doe'
+});
+
+// Login
+const { user, access_token } = await api.auth.login({
+    email: 'user@example.com',
+    password: 'password123'
+});
+
+// Get current user
+const user = await api.auth.me();
+```
+
+### CRUD Operations
+
+```typescript
+// Get all todos
+const todos = await api.todos.findAll();
+
+// Create todo
+const todo = await api.todos.create({
+    title: 'Buy groceries',
+    description: 'Milk, eggs, bread'
+});
+
+// Update todo
+await api.todos.update('todo-id', {
+    completed: true
+});
+
+// Delete todo
+await api.todos.delete('todo-id');
+```
+
+**All type-safe, zero URLs! 🎉**
+
+---
+
+## 📖 Documentation
+
+- [Getting Started](./docs/getting-started.md)
+- [Architecture](./docs/architecture.md)
+- [API Reference](./docs/api-reference.md)
+- [Deployment Guide](./docs/deployment.md)
+- [Docker Guide](./DOCKER.md)
+- [Railway Guide](./RAILWAY.md)
 
 ---
 
 ## 🤝 Contributing
 
-Contributions welcome! Please read our contributing guidelines.
-
-## 📬 Support
-
-- **GitHub**: [ziadmustafa1/wexts](https://github.com/ziadmustafa1/wexts)
-- **Issues**: [Report bugs](https://github.com/ziadmustafa1/wexts/issues)
-- **Discussions**: [Community forums](https://github.com/ziadmustafa1/wexts/discussions)
+We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
 ---
 
-**Built with ❤️ by the wexts Team**
+## 📄 License
+
+MIT © WEXTS Team
+
+---
+
+## 🙏 Acknowledgments
+
+Built with amazing technologies:
+- [Next.js 16](https://nextjs.org/) - React framework
+- [NestJS 11](https://nestjs.com/) - Node.js framework
+- [Prisma](https://www.prisma.io/) - Database ORM
+- [TypeScript](https://www.typescriptlang.org/) - Type safety
+
+---
+
+<div align="center">
+
+**Made with ❤️ for the TypeScript community**
+
+[GitHub](https://github.com/ziadmustafa1/wexts) • [npm](https://www.npmjs.com/package/wexts) • [Documentation](./docs)
+
+</div>

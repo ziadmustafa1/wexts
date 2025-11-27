@@ -1,0 +1,32 @@
+{
+    "name": "wexts-app",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "tsx server.ts",
+        "build": "pnpm run build:api && pnpm run build:web && pnpm run build:server",
+        "build:api": "cd apps/api && npm run build",
+        "build:web": "cd apps/web && npm run build",
+        "build:server": "tsc",
+        "start": "node dist/server.js",
+        "postinstall": "cd apps/api && npx prisma generate"
+    },
+    "dependencies": {
+        "@nestjs/common": "^11.0.0",
+        "@nestjs/core": "^11.0.0",
+        "@nestjs/platform-express": "^11.1.9",
+        "express": "^5.1.0",
+        "next": "16.0.0",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0"
+    },
+    "devDependencies": {
+        "@types/express": "^4.17.21",
+        "@types/node": "^20.0.0",
+        "tsx": "^4.7.0",
+        "typescript": "^5.3.0"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}
