@@ -16,7 +16,7 @@
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.1.9",
     "express": "^5.1.0",
-    "next": "16.0.0",
+    "next": "16.0.10",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
