@@ -6,11 +6,12 @@
     "module": "./dist/index.mjs",
     "types": "./dist/index.d.ts",
     "bin": {
-        "wexts": "./dist/cli/index.js"
+        "wexts": "./bin/wexts.cjs"
     },
     "files": [
         "dist",
         "templates",
+        "bin",
         "README.md",
         "LICENSE"
     ],
