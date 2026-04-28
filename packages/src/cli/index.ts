@@ -367,7 +367,7 @@ async function loadRuntimeConfig(configPath: string): Promise<Record<string, unk
 }
 
 const invokedAsCli = process.argv[1]
-    && (path.basename(process.argv[1]) === 'wexts' || path.resolve(process.argv[1]).includes(`${path.sep}dist${path.sep}cli${path.sep}index`));
+    && (path.basename(process.argv[1]) === 'wexts' || path.basename(process.argv[1]) === 'wexts.cjs' || path.resolve(process.argv[1]).includes(`${path.sep}dist${path.sep}cli${path.sep}index`));
 
 if (invokedAsCli && !process.env.VITEST) {
     createCliProgram().parseAsync(process.argv).catch((error) => {
