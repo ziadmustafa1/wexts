@@ -1,10 +1,12 @@
 {
-  "name": "wexts",
+  "name": "wexts-repo",
   "version": "2.0.0",
   "private": true,
-  "description": "Modern full-stack framework combining Next.js 16 and NestJS 11",
+  "description": "Repository for the Wexts production-focused Next.js + NestJS toolkit",
   "workspaces": [
-    "packages/*"
+    "packages",
+    "packages/*",
+    "examples/*"
   ],
   "scripts": {
     "build": "turbo run build",
@@ -13,14 +15,15 @@
     "lint": "turbo run lint",
     "clean": "turbo run clean",
     "typecheck": "turbo run typecheck",
+    "release:artifact-check": "node scripts/release-artifact-check.mjs",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "turbo run build && changeset publish"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.10",
-    "@types/node": "^22.10.2",
-    "turbo": "^2.3.3",
+    "@changesets/cli": "^2.31.0",
+    "@types/node": "^22.19.1",
+    "turbo": "^2.9.6",
     "typescript": "~5.9.3"
   },
   "engines": {
@@ -42,5 +45,25 @@
   ],
   "author": "wexts Team",
   "license": "MIT",
-  "packageManager": "pnpm@10.22.0"
+  "packageManager": "pnpm@10.22.0",
+  "pnpm": {
+    "overrides": {
+      "ajv": "8.20.0",
+      "diff": "9.0.0",
+      "esbuild": "0.28.0",
+      "fastify": "5.8.5",
+      "lodash": "4.18.1",
+      "lodash-es": "4.18.1",
+      "micromatch>picomatch": "2.3.2",
+      "minimatch": "10.2.5",
+      "next": "16.2.4",
+      "picomatch": "4.0.4",
+      "postcss": "8.5.12",
+      "qs": "6.15.1",
+      "rollup": "4.60.2",
+      "tar": "7.5.13",
+      "uuid": "14.0.0",
+      "yaml": "2.8.3"
+    }
+  }
 }

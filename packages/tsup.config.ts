@@ -1,6 +1,6 @@
-import { defineConfig } from 'tsup';
+import { defineConfig, type Options } from 'tsup';
 
-const commonOptions = {
+const commonOptions: Options = {
     format: ['cjs', 'esm'],
     dts: true,
     splitting: true,
@@ -32,9 +32,12 @@ export default defineConfig([
             'cli/index': 'src/cli/index.ts',
             'client/index': 'src/client/index.ts',
             'nest/index': 'src/nest/index.ts',
+            'rpc/index': 'src/rpc/index.ts',
+            'runtime/index': 'src/runtime/index.ts',
             'types/index': 'src/types/index.ts',
             'codegen/index': 'src/codegen/index.ts',
-            'dev-server/index': 'src/dev-server/index.ts'
+            'dev-server/index': 'src/dev-server/index.ts',
+            'vercel-builder/index': 'src/vercel-builder/index.ts'
         },
         clean: false,
         external: [
@@ -42,9 +45,11 @@ export default defineConfig([
             '@nestjs/common',
             '@nestjs/core',
             '@nestjs/platform-fastify',
+            '@wexts/security',
             'react',
             'react-dom',
             'next',
+            'fastify',
             'fsevents'
         ],
     }

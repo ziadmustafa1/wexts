@@ -4,57 +4,150 @@ Complete guide to deploying WEXTS projects on any platform.
 
 ---
 
-## Quick Start
+## Deployment Modes
 
-### Vercel (Recommended for Next.js)
+Wexts supports two deployment modes:
+
+| Mode | Command | Runtime | Best For |
+|------|---------|---------|----------|
+| **VPS / Node** | `wexts start` | Long-running Fastify server | Full control, WebSockets, persistent connections |
+| **Vercel (Serverless)** | `wexts vercel-build` | Serverless function via Build Output API v3 | Zero-ops, global edge, auto-scaling |
+
+### VPS / Node Deployment
+
+Deploy as a traditional long-running Node.js server:
 
 ```bash
+# 1. Build
+pnpm run build
+
+# 2. Start production runtime
+wexts start -c ./wexts.runtime.js
+```
+
+This starts a single Fastify server that serves:
+- Next.js pages (SSR + static)
+- NestJS API routes under `/api`
+- Wexts RPC routes under `/rpc`
+- Health endpoints at `/health` and `/api/health`
+
+### Vercel Deployment
+
+Deploy as a serverless function using Vercel Build Output API v3:
+
+```bash
+# One command does everything:
+wexts vercel-build
+
+# Or with options:
+wexts vercel-build \
+  -p apps/api \
+  -o apps/web/lib/wexts \
+  -c ./wexts.runtime.js \
+  --node-version 20 \
+  --max-duration 30
+```
+
+This command:
+1. Runs RPC codegen
+2. Builds the API (TypeScript) and Next.js app
+3. Creates `.vercel/output/config.json` (version: 3)
+4. Creates `.vercel/output/functions/index.func/` with serverless entry
+5. Copies static assets to `.vercel/output/static/`
+6. Validates the output structure
+
+#### Vercel Build Output Structure
+
+```
+.vercel/output/
+├── config.json              # { "version": 3 }
+├── static/                  # Public assets, _next/static
+│   ├── favicon.ico
+│   └── _next/static/...
+└── functions/
+    └── index.func/
+        ├── .vc-config.json  # Vercel function config
+        ├── index.js         # Serverless entry point
+        ├── package.json     # Resolved dependencies (no workspace:*)
+        ├── wexts.runtime.js # Runtime config
+        └── apps/
+            ├── api/dist/    # Compiled API services
+            └── web/lib/wexts/
+                └── wexts.rpc.manifest.json
+```
+
+#### Vercel CLI Workflow
+
+```bash
+# Install Vercel CLI
 npm i -g vercel
-cd your-wexts-project
-vercel
-```
 
-**Or** use the dashboard: [vercel.com/new](https://vercel.com/new)
+# Build the output
+wexts vercel-build
 
-- Root Directory: `docs` (or your monorepo root)
-- Framework: Next.js (auto-detected)
-
----
-
-### Netlify
-
-```bash
-npm i -g netlify-cli
-cd your-wexts-project
-netlify deploy
-```
-
-**Or** connect via GitHub at [netlify.com](https://netlify.com)
-
-Netlify will auto-detect the `@wexts/netlify-plugin`.
-
----
-
-### Railway
-
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/ziadmustafa1/wexts)
-
-**Or** use CLI:
-
-```bash
-npm i -g @railway/cli
-railway login
-railway init
-railway up
+# Deploy (Vercel reads .vercel/output automatically)
+vercel deploy --prebuilt
 ```
 
 ---
 
-### Render
+## Serverless Limitations (Vercel Mode)
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ziadmustafa1/wexts)
+> **Important:** The Vercel deployment mode is serverless, not a long-running Node.js process.
 
-**Or** use the blueprint in `templates/render/render.yaml`
+| Feature | VPS (`wexts start`) | Vercel (`wexts vercel-build`) |
+|---------|---------------------|-------------------------------|
+| WebSocket | ✅ Supported | ❌ Not supported |
+| Long-lived connections | ✅ Supported | ❌ Max 30s (configurable) |
+| Server-Sent Events | ✅ Supported | ⚠️ Limited by function timeout |
+| Background tasks | ✅ Supported | ❌ Function terminates after response |
+| File system writes | ✅ Persistent | ❌ Ephemeral (`/tmp` only) |
+| Cold starts | N/A | ⚠️ Possible on first request |
+| RPC calls | ✅ Full | ✅ Full |
+| Health endpoints | ✅ `/health`, `/api/health` | ✅ `/health`, `/api/health` |
+| NestJS API | ✅ Full | ✅ Full (stateless only) |
+| Next.js SSR | ✅ Full | ✅ Full |
+
+### What won't work on Vercel
+
+1. **WebSocket connections** — Vercel functions are request/response only. Use a dedicated WebSocket service (e.g., Ably, Pusher, or a VPS) for real-time features.
+2. **Long-running background tasks** — The function terminates after the response is sent. Use Vercel Cron or an external queue for background work.
+3. **Persistent in-memory state** — Each invocation may run on a different instance. Use a database or external cache (Redis) for shared state.
+4. **File uploads to disk** — The file system is read-only except `/tmp`. Use cloud storage (S3, Vercel Blob) for file uploads.
+
+---
+
+## Runtime Architecture
+
+### VPS Mode (`startWextsServer`)
+
+```
+┌─────────────────────────────────────┐
+│  Fastify Server (listen on port)    │
+│  ├── Security Shield                │
+│  ├── /health, /api/health           │
+│  ├── /rpc/:service/:method (POST)   │
+│  ├── /api/* (NestJS)                │
+│  └── /* (Next.js SSR)               │
+└─────────────────────────────────────┘
+```
+
+### Vercel Mode (`createWextsHandler`)
+
+```
+┌──────────────────────────────────────┐
+│  Vercel Function (req, res)          │
+│  └── createWextsHandler()            │
+│      └── Fastify (no listen)         │
+│          ├── Security Shield         │
+│          ├── /health, /api/health    │
+│          ├── /rpc/:service/:method   │
+│          ├── /api/* (NestJS)         │
+│          └── /* (Next.js SSR)        │
+└──────────────────────────────────────┘
+```
+
+The key difference: `createWextsHandler()` creates the same Fastify instance but **never calls `fastify.listen()`**. Instead, it returns a `(req, res) => void` handler that Vercel invokes for each request.
 
 ---
 
@@ -62,184 +155,46 @@ railway up
 
 | Platform | Best For | Pros | Cons | Price |
 |----------|----------|------|------|-------|
-| **Vercel** | Next.js apps | Excellent Next.js support, edge functions, fast | Limited backend support | Free tier, $20/mo Pro |
-| **Netlify** | JAMstack, static sites | Great plugin ecosystem, forms | Complex serverless setup | Free tier, $19/mo Pro |
+| **VPS (wexts start)** | Full-stack, WebSockets | Full control, persistent connections | Manual scaling | Varies |
+| **Vercel (wexts vercel-build)** | Next.js apps, zero-ops | Auto-scaling, global CDN, fast | No WebSockets, cold starts | Free tier, $20/mo Pro |
+| **Netlify** | JAMstack, static sites | Great plugin ecosystem | Complex serverless setup | Free tier, $19/mo Pro |
 | **Railway** | Full-stack monorepos | Easy setup, PostgreSQL included | Newer platform | $5/mo + usage |
-| **Render** | Traditional apps | PostgreSQL, cron jobs, workers | Slower cold starts | Free tier, $7/mo Starter |
-
----
-
-## Configuration Files
-
-### For Vercel
-
-**`vercel.json`** (optional - usually not needed):
-```json
-{
-  "buildCommand": "pnpm run build",
-  "outputDirectory": "apps/web/.next"
-}
-```
-
-### For Netlify
-
-**`netlify.toml`**:
-```toml
-[build]
-  command = "pnpm run build"
-  publish = "apps/web/.next"
-
-[[plugins]]
-  package = "wexts-netlify-plugin"
-```
-
-### For Railway
-
-**`railway.json`** + **`nixpacks.toml`** (in `templates/railway/`)
-
-### For Render
-
-**`render.yaml`** (in `templates/render/`)
+| **Render** | Traditional apps | PostgreSQL, cron jobs | Slower cold starts | Free tier, $7/mo Starter |
 
 ---
 
 ## Environment Variables
 
-### Recommended for All Platforms
+### All Platforms
 
 ```bash
 NODE_ENV=production
-NODE_VERSION=20
-PNPM_VERSION=9
 ```
 
-### Next.js Specific
+### VPS Additional
 
 ```bash
-NEXT_PUBLIC_API_URL=https://your-api.com
+PORT=3000              # Server port (default: 3000)
+HOST=0.0.0.0           # Bind address (default: 0.0.0.0)
 ```
 
-### NestJS Specific
+### Vercel Additional
+
+Configure via Vercel dashboard or `vercel env add`:
+
+```bash
+# These are set automatically by Vercel:
+# VERCEL=1
+# VERCEL_ENV=production
+```
+
+### Application Variables
 
 ```bash
 DATABASE_URL=postgresql://user:pass@host:5432/db
-JWT_SECRET=your-secret-key
-PORT=3001
+JWT_SECRET=your-strong-secret-key
+NEXT_PUBLIC_API_URL=https://your-domain.com
 ```
-
----
-
-## Monorepo Deployment
-
-WEXTS projects are monorepos. Different platforms handle them differently:
-
-### Vercel
-
-- Supports monorepos natively
-- Set "Root Directory" to your app folder
-- Example: `docs` or `apps/web`
-
-### Netlify
-
-- Use `base` directory in `netlify.toml`:
-```toml
-[build]
-  base = "apps/web"
-```
-
-### Railway/Render
-
-- Use `rootDir` in configuration files
-- Or deploy each app as separate service
-
----
-
-## Database Setup
-
-### PostgreSQL
-
-**Railway** (easiest):
-```bash
-railway add  # Select PostgreSQL
-```
-
-**Render**:
-- Auto-created via `render.yaml`
-- Or manually add in dashboard
-
-**Vercel/Netlify**:
-- Use external service (Supabase, Neon, etc.)
-
-### Prisma Migrations
-
-Run migrations after deployment:
-
-```bash
-# Vercel
-vercel env pull
-pnpm prisma migrate deploy
-
-# Railway
-railway run pnpm prisma migrate deploy
-
-# Render
-# Add to buildCommand in render.yaml:
-buildCommand: "pnpm install && pnpm prisma migrate deploy && pnpm build"
-```
-
----
-
-## CI/CD
-
-### GitHub Actions
-
-All platforms support automatic deployment via GitHub integration.
-
-**Enable**:
-1. Connect repository to platform
-2. Enable "Auto Deploy" or equivalent
-3. Push to main branch → automatic deployment
-
-### Custom Workflows
-
-Example `.github/workflows/deploy.yml`:
-
-```yaml
-name: Deploy
-on:
-  push:
-    branches: [main]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 9
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-          cache: 'pnpm'
-      - run: pnpm install
-      - run: pnpm build
-      - uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-```
-
----
-
-3. **Port configuration**: Some platforms set `PORT` automatically
-
-### Slow Performance
-
-1. **Enable caching**: Platforms cache `node_modules` and build artifacts
-2. **Optimize build**: Use `pnpm install --frozen-lockfile --prefer-offline`
-3. **Regional deployment**: Deploy closer to your users
 
 ---
 
@@ -247,33 +202,27 @@ jobs:
 
 - [ ] Environment variables configured
 - [ ] Database migrations run
-- [ ] Health check endpoints working
-- [ ] Error tracking setup (Sentry, etc.)
-- [ ] Analytics configured
+- [ ] `wexts doctor` passes
+- [ ] `wexts doctor --security` passes
+- [ ] Health check endpoints responding
+- [ ] SSL/HTTPS enabled
 - [ ] Custom domain configured
-- [ ] SSL/HTTPS enabled (automatic on most platforms)
-- [ ] Monitoring alerts setup
+- [ ] Error tracking setup (Sentry, etc.)
+- [ ] Monitoring alerts configured
+
+### Vercel-Specific Checklist
+
+- [ ] `wexts vercel-build` completes without errors
+- [ ] `.vercel/output/config.json` exists with `version: 3`
+- [ ] `.vercel/output/functions/index.func/` has all required files
+- [ ] No `workspace:*` dependencies in generated `package.json`
+- [ ] `vercel deploy --prebuilt` succeeds
+- [ ] WebSocket-dependent features have alternative implementations
 
 ---
 
 ## Getting Help
 
-- **Vercel**: [vercel.com/docs](https://vercel.com/docs)
-- **Netlify**: [docs.netlify.com](https://docs.netlify.com)
-- **Railway**: [docs.railway.app](https://docs.railway.app)
-- **Render**: [render.com/docs](https://render.com/docs)
 - **WEXTS**: [wexts.vercel.app](https://wexts.vercel.app)
-
----
-
-## What's Next?
-
-After successful deployment:
-
-1. **Set up monitoring** (Vercel Analytics, Sentry, etc.)
-2. **Configure CDN** (automatic on Vercel/Netlify)
-3. **Add custom domain**
-4. **Enable preview deployments** (for PRs)
-5. **Set up staging environment**
-
-Happy deploying! 🚀
+- **Vercel**: [vercel.com/docs](https://vercel.com/docs)
+- **Vercel Build Output API**: [vercel.com/docs/build-output-api/v3](https://vercel.com/docs/build-output-api/v3)

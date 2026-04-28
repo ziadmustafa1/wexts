@@ -1,7 +1,7 @@
 {
     "name": "wexts",
     "version": "3.0.2",
-    "description": "Build production-ready full-stack apps with Next.js 16 + NestJS 11 in a unified runtime. Zero URLs. Zero configuration.",
+    "description": "Production-focused single-runtime Next.js + NestJS toolkit with typed RPC.",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
     "types": "./dist/index.d.ts",
@@ -39,6 +39,16 @@
             "types": "./dist/next/index.d.ts",
             "import": "./dist/next/index.mjs",
             "require": "./dist/next/index.js"
+        },
+        "./rpc": {
+            "types": "./dist/rpc/index.d.ts",
+            "import": "./dist/rpc/index.mjs",
+            "require": "./dist/rpc/index.js"
+        },
+        "./runtime": {
+            "types": "./dist/runtime/index.d.ts",
+            "import": "./dist/runtime/index.mjs",
+            "require": "./dist/runtime/index.js"
         }
     },
     "scripts": {
@@ -46,7 +56,7 @@
         "dev": "tsup --watch",
         "test": "vitest run",
         "test:watch": "vitest",
-        "lint": "eslint src",
+        "lint": "tsc --noEmit",
         "typecheck": "tsc --noEmit",
         "release": "npm run build && npm publish --access public"
     },
@@ -60,7 +70,7 @@
         "typescript",
         "react",
         "unified-runtime",
-        "zero-config",
+        "generated-rpc",
         "type-safe",
         "prisma",
         "jwt-auth",
@@ -83,29 +93,33 @@
         "pnpm": ">=10.0.0"
     },
     "devDependencies": {
-        "@swc/core": "^1.15.3",
+        "@swc/core": "^1.15.32",
         "@types/http-proxy": "^1.17.15",
-        "@types/node": "^22.10.2",
-        "@types/react": "^19.0.6",
+        "@types/node": "^22.19.1",
+        "@types/react": "^19.2.14",
         "eslint": "^9.17.0",
-        "tsup": "^8.3.5",
-        "vitest": "^2.1.8"
+        "tsup": "^8.5.1",
+        "vite": "^6.4.2",
+        "vitest": "^4.1.5"
     },
     "dependencies": {
         "chokidar": "^4.0.3",
-        "commander": "^12.1.0",
+        "commander": "^14.0.3",
         "consola": "^3.2.3",
         "http-proxy": "^1.18.1",
-        "inquirer": "^12.4.0",
         "picocolors": "^1.1.1",
         "reflect-metadata": "^0.2.2",
+        "fastify": "^5.8.5",
+        "@wexts/security": "^0.1.0",
         "typescript": "^5.9.3"
     },
     "peerDependencies": {
         "@nestjs/common": "^11.0.0",
         "@nestjs/core": "^11.0.0",
-        "next": "^16.0.0",
-        "react": "^19.0.0"
+        "@nestjs/platform-fastify": "^11.0.0",
+        "next": "^16.2.4",
+        "react": "^19.2.5",
+        "react-dom": "^19.2.5"
     },
     "peerDependenciesMeta": {
         "@nestjs/common": {
@@ -114,7 +128,13 @@
         "@nestjs/core": {
             "optional": true
         },
+        "@nestjs/platform-fastify": {
+            "optional": true
+        },
         "react": {
+            "optional": true
+        },
+        "react-dom": {
             "optional": true
         },
         "next": {

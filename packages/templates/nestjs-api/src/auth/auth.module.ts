@@ -15,7 +15,7 @@ import { PrismaModule } from '../prisma/prisma.module';
         JwtModule.registerAsync({
             inject: [ConfigService],
             useFactory: (config: ConfigService) => ({
-                secret: config.get('JWT_SECRET') || 'default-secret',
+                secret: getJwtSecret(config),
                 signOptions: {
                     expiresIn: config.get('JWT_EXPIRES_IN') || '7d',
                 },
@@ -27,3 +27,11 @@ import { PrismaModule } from '../prisma/prisma.module';
     exports: [AuthService],
 })
 export class AuthModule { }
+
+function getJwtSecret(config: ConfigService): string {
+    const secret = config.get<string>('JWT_SECRET');
+    if (!secret || secret.length < 32) {
+        throw new Error('JWT_SECRET must be set to at least 32 characters.');
+    }
+    return secret;
+}

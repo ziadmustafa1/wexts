@@ -31,7 +31,7 @@ export async function loginAction(prevState: ActionState, formData: FormData): P
     }
 
     try {
-        // Use SDK - no URLs needed!
+        // Legacy SDK call retained for deprecated demo compatibility.
         const data = await api.auth.login({ email, password });
 
         // Store JWT token
@@ -78,7 +78,7 @@ export async function registerAction(prevState: ActionState, formData: FormData)
     }
 
     try {
-        // Use SDK - no URLs needed!
+        // Legacy SDK call retained for deprecated demo compatibility.
         const data = await api.auth.register({ email, password, name });
 
         // Store JWT token

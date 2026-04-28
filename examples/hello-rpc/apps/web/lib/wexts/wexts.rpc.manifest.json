@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "services": [
+    {
+      "name": "hello",
+      "className": "HelloService",
+      "importPath": "src/hello.service",
+      "requireAuth": false,
+      "methods": [
+        {
+          "name": "sayHello",
+          "handlerName": "sayHello",
+          "requireAuth": false,
+          "parameters": [
+            {
+              "name": "name",
+              "type": "string",
+              "optional": false
+            }
+          ],
+          "returnType": "Promise<string>"
+        }
+      ]
+    }
+  ]
+}

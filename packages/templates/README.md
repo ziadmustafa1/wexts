@@ -1,4 +1,12 @@
-# WEXTS Templates
+# Deprecated Legacy Templates
+
+These templates predate the verified `examples/hello-rpc` runtime/RPC/security model. They are retained for compatibility while the scaffold is consolidated.
+
+For release validation and production guidance, use `examples/hello-rpc`. Do not treat these legacy templates as the recommended production app structure.
+
+---
+
+# WEXTS Legacy Templates
 
 This directory contains all the templates needed to create a WEXTS unified server application.
 
@@ -6,7 +14,7 @@ This directory contains all the templates needed to create a WEXTS unified serve
 
 ### Core Templates
 - `server.ts` - Unified server that runs Next.js + NestJS in one process
-- `api-sdk.ts` - Type-safe SDK for API calls (zero URLs needed!)
+- `api-sdk.ts` - legacy SDK scaffold retained for compatibility
 - `root-package.json` - Root package.json with all scripts
 - `tsconfig.json` - TypeScript configuration
 - `.env.example` - Environment variables template
@@ -24,17 +32,18 @@ This directory contains all the templates needed to create a WEXTS unified serve
 
 ## 🚀 Usage
 
-These templates are used by the WEXTS CLI when creating a new project:
+These templates are legacy scaffold assets. The canonical verified example is:
 
 ```bash
-npx wexts create my-app
+pnpm --filter wexts-example-hello-rpc generate
+pnpm --filter wexts-example-hello-rpc build
 ```
 
 ## ✨ Features
 
 ✅ **Unified Server** - Single Node.js process for frontend + backend  
-✅ **Zero URLs** - Type-safe SDK without explicit API URLs  
-✅ **Smart Routing** - Automatic routing between Next.js and NestJS  
+✅ **Generated RPC** - In the canonical `examples/hello-rpc` path  
+✅ **Smart Routing** - In the production Fastify runtime  
 ✅ **Docker Ready** - Complete Docker setup included  
 ✅ **Multi-Platform Deploy** - Railway, Render, Docker, VPS  
 

@@ -6,27 +6,27 @@ import { ChevronDown } from 'lucide-react';
 const faqs = [
     {
         question: 'What is wexts?',
-        answer: 'wexts is a full-stack TypeScript framework that combines Next.js 16 and NestJS 10 in a monorepo. It provides automatic RPC generation, end-to-end type safety, and zero configuration setup.'
+        answer: 'wexts is a production-focused Next.js 16 + NestJS 11 toolkit with generated RPC, a single production Fastify runtime, and explicit release checks.'
     },
     {
         question: 'How is it different from tRPC or GraphQL?',
-        answer: 'Unlike tRPC which requires manual router setup, wexts automatically generates your API from NestJS decorators. Compared to GraphQL, there\'s no schema definition needed - your TypeScript types ARE the schema.'
+        answer: 'wexts generates a client from explicit @RpcService() and @RpcMethod() metadata. It does not automatically expose every Nest controller.'
     },
     {
         question: 'Can I use it with existing projects?',
-        answer: 'Yes! You can integrate wexts into existing Next.js or NestJS projects. The framework is designed to be incremental - start with one RPC endpoint and gradually migrate more functionality.'
+        answer: 'Yes, incrementally. Start with one explicit Wexts RPC service and keep existing Next.js or NestJS routes while you validate the runtime model.'
     },
     {
         question: 'What databases are supported?',
         answer: 'wexts uses Prisma ORM, which supports PostgreSQL, MySQL, SQLite, SQL Server, MongoDB, and CockroachDB. You can use any database that Prisma supports.'
     },
     {
-        question: 'Is it production-ready?',
-        answer: 'Yes! wexts v2.0 is stable and battle-tested in production. It includes built-in error handling, validation, logging, and monitoring features required for production applications.'
+        question: 'Can I use it in production?',
+        answer: 'Wexts is production-focused. Use it for small/medium deployments only after install, typecheck, tests, build, example smoke, doctor, and doctor --security pass in your environment.'
     },
     {
         question: 'How do I deploy wexts applications?',
-        answer: 'Deploy the Next.js frontend to Vercel/Netlify and the NestJS backend to any Node.js hosting (Render, Railway, AWS, etc.). The monorepo structure makes it easy to deploy both apps together or separately.'
+        answer: 'Use the single Fastify production runtime after the checklist passes. Network-level DDoS still requires Cloudflare, a WAF, load balancer controls, or provider protection.'
     }
 ];
 

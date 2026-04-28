@@ -1,3 +1,9 @@
+# Deprecated Legacy API Demo
+
+This API app belongs to the deprecated `demo/` tree. It is retained for historical reference only. Use `examples/hello-rpc` for the canonical verified Wexts path.
+
+---
+
 # Fusion NestJS API
 
 Complete NestJS 10 backend with authentication, Prisma ORM, and CRUD operations.

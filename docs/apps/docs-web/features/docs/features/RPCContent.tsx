@@ -7,7 +7,7 @@ export function RPCContent() {
             <Badge className="mb-4">RPC Auto-Linking</Badge>
             <h1 id="rpc">RPC Auto-Linking</h1>
             <p className="text-xl text-muted-foreground">
-                Call server functions from client with zero configuration.
+                Call explicitly decorated server RPC methods from the client after running codegen.
             </p>
 
             <h2 id="how-it-works">How It Works</h2>

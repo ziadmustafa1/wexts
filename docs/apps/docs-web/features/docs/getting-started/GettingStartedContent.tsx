@@ -113,7 +113,7 @@ pnpm dev`}
 
             <h2 id="your-first-endpoint">Creating Your First Endpoint</h2>
             <p>
-                Let's create a simple endpoint to see how RPC auto-linking works.
+                Let's create a simple explicitly decorated RPC service.
                 First, create a new service in your backend:
             </p>
 
@@ -127,9 +127,12 @@ pnpm dev`}
 
             <CodeBlock language="typescript" filename="apps/api/src/hello/hello.service.ts" showLineNumbers>
                 {`import { Injectable } from '@nestjs/common';
+import { RpcMethod, RpcService } from 'wexts/nest';
 
 @Injectable()
+@RpcService({ name: 'hello', requireAuth: false })
 export class HelloService {
+  @RpcMethod()
   async sayHello(name: string): Promise<string> {
     return \`Hello, \${name}! Welcome to wexts.\`;
   }
@@ -159,8 +162,8 @@ export default function Page() {
             </CodeBlock>
 
             <Callout type="success" title="Magic! ✨">
-                Notice how you didn't need to define any API routes or fetch logic.
-                wexts automatically generates a type-safe SDK for your backend services.
+                The generated client is produced from explicit Wexts RPC metadata.
+                Run <code>wexts generate</code> after adding or changing RPC services.
             </Callout>
 
             <h2 id="next-steps">Next Steps</h2>
@@ -169,8 +172,8 @@ export default function Page() {
             </p>
 
             <ul>
-                <li><a href="/docs/features/rpc">Learn more about RPC Auto-Linking</a></li>
-                <li><a href="/docs/features/insight">Explore the Fusion Insight GUI</a></li>
+                <li><a href="/docs/features/rpc">Learn more about generated RPC</a></li>
+                <li><a href="/docs/features/insight">Explore experimental insight tooling</a></li>
                 <li><a href="/docs/api">Check out the API Reference</a></li>
                 <li><a href="/docs/examples">See complete examples</a></li>
             </ul>

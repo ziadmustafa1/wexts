@@ -5,9 +5,16 @@ node_modules/
 
 # Build outputs
 dist/
+**/dist/
 build/
+*.tgz
 .next/
+**/.next/
+.vercel/
+**/.vercel/
 out/
+**/node_modules/
+**/.turbo/
 
 # Testing
 coverage/
@@ -30,6 +37,7 @@ coverage/
 Thumbs.db
 
 # Logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -41,6 +49,7 @@ lerna-debug.log*
 
 # TypeScript
 *.tsbuildinfo
+**/*.tsbuildinfo
 
 # Misc
 .cache/

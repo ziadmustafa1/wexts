@@ -1,11 +1,20 @@
-import { ControllerInfo, RouteInfo } from './parser';
 import { filesystem } from '../core/filesystem';
 import * as path from 'path';
+import type { RpcManifest, RpcMethodManifest, RpcServiceManifest } from '../rpc/types';
+import { NestJSParser } from './parser';
 
 export interface GenerateOptions {
-    controllers: ControllerInfo[];
     outputPath: string;
-    baseUrl?: string;
+    manifest: RpcManifest;
+    manifestFileName?: string;
+    clientFileName?: string;
+}
+
+export interface GenerateRpcOptions {
+    projectPath: string;
+    outputPath: string;
+    manifestFileName?: string;
+    clientFileName?: string;
 }
 
 /**
@@ -13,112 +22,88 @@ export interface GenerateOptions {
  */
 export class ClientGenerator {
     async generate(options: GenerateOptions): Promise<void> {
-        const { controllers, outputPath } = options;
+        const {
+            manifest,
+            outputPath,
+            manifestFileName = 'wexts.rpc.manifest.json',
+            clientFileName = 'client.ts',
+        } = options;
 
-        // Generate client file
-        const clientCode = this.generateClientCode(controllers, options.baseUrl);
-        await filesystem.writeFile(path.join(outputPath, 'client.ts'), clientCode);
+        if (manifest.services.length === 0) {
+            throw new Error('No Wexts RPC services found. Add @RpcService() to a Nest provider and @RpcMethod() to at least one method.');
+        }
 
-        // Generate barrel export
+        const sortedManifest = sortManifest(manifest);
+        const clientCode = this.generateRpcClientCode(sortedManifest);
+        await filesystem.writeJSON(path.join(outputPath, manifestFileName), sortedManifest, true);
+        await filesystem.writeFile(path.join(outputPath, clientFileName), clientCode);
+
         const indexCode = `export * from './client';\n`;
         await filesystem.writeFile(path.join(outputPath, 'index.ts'), indexCode);
-
-        console.log(`✅ Generated API client at ${outputPath}`);
     }
 
-    private generateClientCode(controllers: ControllerInfo[], baseUrl = '/api'): string {
-        const imports = `import { FusionFetcher } from 'wexts/client';\n\n`;
+    private generateRpcClientCode(manifest: RpcManifest): string {
+        const manifestJson = JSON.stringify(manifest, null, 2);
 
-        const clientClass = this.generateClientClass(controllers, baseUrl);
+        return `import { createWextsRpcClient, type WextsRpcClientOptions } from 'wexts/client';
+import type { RpcManifest } from 'wexts/rpc';
 
-        const exports = `\n// Export singleton instance\nexport const apiClient = new ApiClient();\n`;
+const manifest = ${manifestJson} satisfies RpcManifest;
 
-        return imports + clientClass + exports;
+${this.generateClientInterface(manifest)}
+
+export function createWextsClient(options?: WextsRpcClientOptions): WextsClient {
+  return createWextsRpcClient(manifest, options) as unknown as WextsClient;
+}
+
+export const wexts = createWextsClient();
+`;
     }
 
-    private generateClientClass(controllers: ControllerInfo[], baseUrl: string): string {
-        let code = `export class ApiClient {\n`;
-        code += `  private client: FusionFetcher;\n\n`;
-        code += `  constructor(baseUrl: string = '${baseUrl}') {\n`;
-        code += `    this.client = new FusionFetcher(baseUrl);\n`;
-        code += `  }\n\n`;
-
-        // Generate methods for each controller
-        for (const controller of controllers) {
-            const methods = this.generateControllerMethods(controller);
-            code += methods;
-        }
-
-        code += `}\n`;
-        return code;
+    private generateClientInterface(manifest: RpcManifest): string {
+        const services = manifest.services.map((service) => this.generateServiceInterface(service)).join('\n');
+        return `export interface WextsClient {\n${services}}\n`;
     }
 
-    private generateControllerMethods(controller: ControllerInfo): string {
-        let code = `  // ${controller.name} endpoints\n`;
-
-        for (const route of controller.routes) {
-            const methodName = this.generateMethodName(controller, route);
-            const methodCode = this.generateMethod(controller, route, methodName);
-            code += methodCode + '\n';
-        }
-
-        return code;
+    private generateServiceInterface(service: RpcServiceManifest): string {
+        const methods = service.methods.map((method) => `    ${method.name}: (${this.parametersToSignature(method)}) => Promise<${normalizeReturnType(method.returnType)}>;`).join('\n');
+        return `  ${service.name}: {\n${methods}\n  };\n`;
     }
 
-    private generateMethodName(controller: ControllerInfo, route: RouteInfo): string {
-        // Convert handler name to camelCase
-        // e.g., "findAll" -> "getTodos" (if controller is TodosController)
-        const controllerBase = controller.name.replace('Controller', '').toLowerCase();
-
-        if (route.handler === 'findAll') {
-            return `get${this.capitalize(controllerBase)}`;
-        } else if (route.handler === 'findOne') {
-            return `get${this.capitalize(controllerBase)}ById`;
-        } else if (route.handler === 'create') {
-            return `create${this.capitalize(controllerBase.replace(/s$/, ''))}`;
-        } else if (route.handler === 'update') {
-            return `update${this.capitalize(controllerBase.replace(/s$/, ''))}`;
-        } else if (route.handler === 'remove' || route.handler === 'delete') {
-            return `delete${this.capitalize(controllerBase.replace(/s$/, ''))}`;
-        }
-
-        // Default: use handler name as-is
-        return route.handler;
+    private parametersToSignature(method: RpcMethodManifest): string {
+        return method.parameters
+            .map((parameter) => `${parameter.name}${parameter.optional ? '?' : ''}: ${parameter.type}`)
+            .join(', ');
     }
+}
 
-    private generateMethod(controller: ControllerInfo, route: RouteInfo, methodName: string): string {
-        const fullPath = `/${controller.prefix}${route.path}`;
-        const hasPathParam = fullPath.includes(':');
+export async function generateRpcClient(options: GenerateRpcOptions): Promise<RpcManifest> {
+    const parser = new NestJSParser(options.projectPath);
+    const manifest = parser.findRpcManifest();
+    const generator = new ClientGenerator();
+    await generator.generate({
+        manifest,
+        outputPath: options.outputPath,
+        manifestFileName: options.manifestFileName,
+        clientFileName: options.clientFileName,
+    });
 
-        let params = '';
-        let pathExpr = `'${fullPath}'`;
+    return sortManifest(manifest);
+}
 
-        if (hasPathParam) {
-            // Extract path param name
-            const paramMatch = fullPath.match(/:(\w+)/);
-            const paramName = paramMatch ? paramMatch[1] : 'id';
-            params = `${paramName}: string`;
-            pathExpr = `'${fullPath.replace(`:${paramName}`, '${' + paramName + '}')}'`;
-        }
+function sortManifest(manifest: RpcManifest): RpcManifest {
+    return {
+        schemaVersion: 1,
+        services: [...manifest.services]
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((service) => ({
+                ...service,
+                methods: [...service.methods].sort((a, b) => a.name.localeCompare(b.name)),
+            })),
+    };
+}
 
-        // Add data param for POST/PUT
-        if (route.method === 'POST' || route.method === 'PUT') {
-            if (params) params += ', ';
-            params += 'data: any';
-        }
-
-        let methodBody = '';
-
-        if (route.method === 'GET' || route.method === 'DELETE') {
-            methodBody = `    return this.client.${route.method.toLowerCase()}<any>(${pathExpr});`;
-        } else {
-            methodBody = `    return this.client.${route.method.toLowerCase()}<any>(${pathExpr}, data);`;
-        }
-
-        return `  async ${methodName}(${params}): Promise<any> {\n${methodBody}\n  }\n`;
-    }
-
-    private capitalize(str: string): string {
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    }
+function normalizeReturnType(returnType: string): string {
+    const match = returnType.match(/^Promise<(.+)>$/);
+    return match?.[1] ?? returnType;
 }

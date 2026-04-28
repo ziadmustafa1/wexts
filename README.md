@@ -1,372 +1,104 @@
-<div align="center">
+# Wexts
 
-```
-██╗    ██╗███████╗██╗  ██╗████████╗███████╗
-██║    ██║██╔════╝╚██╗██╔╝╚══██╔══╝██╔════╝
-██║ █╗ ██║█████╗   ╚███╔╝    ██║   ███████╗
-██║███╗██║██╔══╝   ██╔██╗    ██║   ╚════██║
-╚███╔███╔╝███████╗██╔╝ ██╗   ██║   ███████║
- ╚══╝╚══╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝
-```
+Production-focused single-runtime toolkit for Next.js + NestJS with generated typed RPC, a Fastify production server, Wexts Shield application-layer protection, CLI/codegen, tests, and an official verified example.
 
-<h1>WEXTS Framework</h1>
+## Current Release Status
 
-**The Modern Full-Stack TypeScript Framework**
+The canonical verified path is [`examples/hello-rpc`](./examples/hello-rpc). CI and local verification cover:
 
-*Build production-ready apps with Next.js 16 + NestJS 11 in a single unified runtime*
+- RPC manifest/client generation
+- `const wexts = useWexts(); await wexts.hello.sayHello("Bob")`
+- production build
+- `wexts start`
+- `/health`
+- `/rpc/hello/sayHello`
+- `wexts doctor`
+- `wexts doctor --security`
 
-[![npm version](https://img.shields.io/npm/v/wexts.svg)](https://www.npmjs.com/package/wexts)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
+Legacy `demo/` and `packages/templates/*` are deprecated for production guidance and retained only for compatibility while scaffolding is consolidated.
 
-[Documentation](./docs) • [Examples](./demo) • [Templates](./packages/templates)
+## Architecture
 
-</div>
+- Production runtime: one Fastify server.
+- NestJS is mounted under `/api` when configured.
+- Wexts RPC is served under `/rpc` from a generated manifest.
+- Next.js handles frontend routes.
+- Wexts Shield runs before Next, Nest, and RPC.
+- Codegen runs before production start; runtime does not scan source files.
 
----
+Development mode currently starts separate web/API processes for fast local iteration. Single-port serving is the supported production runtime path.
 
-## ✨ Why WEXTS?
-
-**Traditional Approach** 😓
-```
-Next.js (port 3000) ──proxy──> NestJS (port 3001)
-   ❌ Two servers
-   ❌ CORS configuration
-   ❌複雑な deployment
-   ❌ URL management hell
-```
-
-**WEXTS Approach** 🚀
-```
-Single Unified Server (port 3000)
-   ✅ One Node.js process
-   ✅ Smart routing
-   ✅ Zero configuration
-   ✅ No URLs in code!
-```
-
----
-
-## 🎯 Key Features
-
-<table>
-<tr>
-<td width="50%">
-
-### 🔥 Unified Runtime
-Run Next.js and NestJS in a **single Node.js process** with intelligent routing
-
-### 🎨 Zero URLs
-Type-safe API calls **without explicit URLs**
-```typescript
-// No more this:
-fetch('http://localhost:3001/api/users')
-
-// Just this:
-api.users.findAll()
-```
-
-</td>
-<td width="50%">
-
-### ⚡ Developer Experience
-- Hot reload for both frontend and backend
-- Single `pnpm run dev` command
-- Automatic type safety
-- No proxy configuration
-
-### 🐳 Production Ready
-- One Docker container
-- Single deployment
-- Works on Vercel, Railway, Render
-- PostgreSQL ready
-
-</td>
-</tr>
-</table>
-
----
-
-## 🚀 Quick Start
+## Quickstart
 
 ```bash
-# Create new project
-npx wexts create my-app
-cd my-app
-
-# Install dependencies
 pnpm install
-
-# Start development
-pnpm run dev
+pnpm --filter wexts-example-hello-rpc generate
+pnpm --filter wexts-example-hello-rpc build
+PORT=3210 pnpm --filter wexts-example-hello-rpc start
+WEXTS_SMOKE_URL=http://127.0.0.1:3210 pnpm --filter wexts-example-hello-rpc smoke
 ```
 
-**That's it!** Open http://localhost:3000
+## RPC
 
-✅ Frontend on all routes (except `/api/*`)  
-✅ Backend API on `/api/*`  
-✅ Zero configuration needed!
+Backend services opt in explicitly:
 
----
-
-## 📖 Project Structure
-
-```
-my-app/
-├── 🚀 server.ts              # Unified server (Next.js + NestJS)
-├── 📦 package.json           # Root configuration
-├── 🐳 Dockerfile             # Production Docker build
-├── 🐘 docker-compose.yml     # Docker + PostgreSQL
-│
-├── apps/
-│   ├── 🔙 api/                # NestJS Backend
-│   │   ├── src/
-│   │   │   ├── auth/          # Authentication (JWT)
-│   │   │   ├── users/         # Users module
-│   │   │   ├── todos/         # Example module
-│   │   │   └── prisma/        # Database ORM
-│   │   └── prisma/
-│   │       └── schema.prisma  # Database schema
-│   │
-│   └── 🎨 web/                # Next.js Frontend
-│       ├── app/               # App Router
-│       │   ├── login/         # Login page
-│       │   ├── register/      # Register page
-│       │   ├── dashboard/     # Dashboard
-│       │   └── actions/       # Server Actions
-│       ├── lib/
-│       │   └── api.ts         # 🔥 Type-safe SDK (NO URLS!)
-│       └── features/          # Feature modules
-│
-└── 📝 .env.example            # Environment template
+```ts
+@RpcService({ name: 'hello', requireAuth: false })
+export class HelloService {
+  @RpcMethod()
+  async sayHello(name: string): Promise<string> {
+    return `Hello, ${name}!`;
+  }
+}
 ```
 
----
-
-## 💡 The Magic - Zero URLs!
-
-### ❌ Old Way (Without WEXTS)
-```typescript
-// Frontend
-const response = await fetch('http://localhost:3001/api/users');
-const users = await response.json();
-
-// Problems:
-// - Hardcoded URLs
-// - No type safety
-// - CORS issues
-// - Environment management
-```
-
-### ✅ WEXTS Way
-```typescript
-// Frontend
-import { api } from '@/lib/api';
-
-const users = await api.users.findAll();
-//    ✅ Type-safe
-//    ✅ No URLs
-//    ✅ Auto-complete
-//    ✅ Works everywhere (Server/Client)
-```
-
-**The SDK is automatically connected to your backend!**
-
----
-
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────┐
-│         Unified Server (port 3000)          │
-│                                             │
-│  ┌────────────────┐    ┌─────────────────┐ │
-│  │   Next.js      │    │    NestJS       │ │
-│  │   Frontend     │    │    Backend      │ │
-│  │                │    │                 │ │
-│  │  - App Router  │    │  - Controllers  │ │
-│  │  - Server      │    │  - Services     │ │
-│  │    Actions     │    │  - Prisma ORM   │ │
-│  │  - Components  │    │  - JWT Auth     │ │
-│  └────────────────┘    └─────────────────┘ │
-│                                             │
-│         Smart Router Middleware             │
-│  ┌─────────────────────────────────────┐   │
-│  │  /api/* → NestJS                    │   │
-│  │  /*     → Next.js                   │   │
-│  └─────────────────────────────────────┘   │
-└─────────────────────────────────────────────┘
-                     │
-                     ▼
-              PostgreSQL/SQLite
-```
-
----
-
-## 🛠️ Development
+Generate the client:
 
 ```bash
-# Start dev server (both Next.js + NestJS)
-pnpm run dev
-
-# Build for production
-pnpm run build
-
-# Start production server
-pnpm start
-
-# Run Prisma migrations
-cd apps/api && npx prisma migrate dev
-
-# Generate Prisma client
-cd apps/api && npx prisma generate
+wexts generate -p apps/api -o apps/web/lib/wexts
 ```
 
----
+Use it from the frontend:
 
-## 🐳 Deployment
+```ts
+const wexts = useWexts();
+await wexts.hello.sayHello("Bob");
+```
 
-### Option 1: Docker (Recommended)
+## Security
+
+`@wexts/security` provides application-layer protection: security headers, strict CORS, CSRF checks for cookie-auth mutations, body/request limits, route policies, in-memory rate limiting, concurrency limits, RPC auth policy, audit logs, and redaction.
+
+The default rate limit store is single-process only. Multi-instance deployments need a shared store adapter. Network-level DDoS requires Cloudflare, a WAF, load balancer controls, or provider protection.
+
+## Release Gate
+
+Before release:
 
 ```bash
-# Build and run everything
-docker-compose up -d
-
-# Your app is live at http://localhost:3000
-# Includes PostgreSQL database!
+pnpm install
+pnpm typecheck
+pnpm test
+pnpm lint
+pnpm build
+pnpm --filter wexts-example-hello-rpc generate
+pnpm --filter wexts-example-hello-rpc build
+pnpm --filter wexts-example-hello-rpc run doctor
+pnpm --filter wexts-example-hello-rpc run doctor:security
 ```
 
-### Option 2: Railway (Easiest)
-
-1. Push to GitHub
-2. Connect Railway to your repo
-3. Add environment variables
-4. Deploy! ✨
-
-Railway auto-detects WEXTS and deploys everything.
-
-### Option 3: Render / VPS
+Then start the example and run smoke:
 
 ```bash
-# Build
-pnpm run build
-
-# Start with environment variables
-export DATABASE_URL="postgresql://..."
-export JWT_SECRET="your-secret"
-pnpm start
+PORT=3210 pnpm --filter wexts-example-hello-rpc start
+WEXTS_SMOKE_URL=http://127.0.0.1:3210 pnpm --filter wexts-example-hello-rpc smoke
 ```
 
----
+## Limitations
 
-## 🔐 Environment Variables
+- Legacy demo/templates are not production references.
+- RPC is generated from explicit Wexts RPC decorators, not every arbitrary Nest controller.
+- In-memory security limits are not distributed.
+- Dev mode is separate-process; production runtime is single-port.
 
-Create `.env` in root:
-
-```env
-# JWT Authentication
-JWT_SECRET=your-super-secret-jwt-key-change-in-production
-JWT_EXPIRES_IN=7d
-
-# Database (Development - SQLite)
-DATABASE_URL="file:./apps/api/dev.db"
-
-# Database (Production - PostgreSQL)
-# DATABASE_URL="postgresql://user:password@host:5432/dbname"
-
-# Server
-PORT=3000
-NODE_ENV=development
-```
-
----
-
-## 📚 API Examples
-
-### Authentication
-
-```typescript
-import { api } from '@/lib/api';
-
-// Register
-const { user, access_token } = await api.auth.register({
-    email: 'user@example.com',
-    password: 'password123',
-    name: 'John Doe'
-});
-
-// Login
-const { user, access_token } = await api.auth.login({
-    email: 'user@example.com',
-    password: 'password123'
-});
-
-// Get current user
-const user = await api.auth.me();
-```
-
-### CRUD Operations
-
-```typescript
-// Get all todos
-const todos = await api.todos.findAll();
-
-// Create todo
-const todo = await api.todos.create({
-    title: 'Buy groceries',
-    description: 'Milk, eggs, bread'
-});
-
-// Update todo
-await api.todos.update('todo-id', {
-    completed: true
-});
-
-// Delete todo
-await api.todos.delete('todo-id');
-```
-
-**All type-safe, zero URLs! 🎉**
-
----
-
-## 📖 Documentation
-
-- [Getting Started](./docs/getting-started.md)
-- [Architecture](./docs/architecture.md)
-- [API Reference](./docs/api-reference.md)
-- [Deployment Guide](./docs/deployment.md)
-- [Docker Guide](./DOCKER.md)
-- [Railway Guide](./RAILWAY.md)
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
-
----
-
-## 📄 License
-
-MIT © WEXTS Team
-
----
-
-## 🙏 Acknowledgments
-
-Built with amazing technologies:
-- [Next.js 16](https://nextjs.org/) - React framework
-- [NestJS 11](https://nestjs.com/) - Node.js framework
-- [Prisma](https://www.prisma.io/) - Database ORM
-- [TypeScript](https://www.typescriptlang.org/) - Type safety
-
----
-
-<div align="center">
-
-**Made with ❤️ for the TypeScript community**
-
-[GitHub](https://github.com/ziadmustafa1/wexts) • [npm](https://www.npmjs.com/package/wexts) • [Documentation](./docs)
-
-</div>
+MIT.

@@ -1,5 +1,4 @@
 import { ProcessRunner, ProcessConfig } from './process-runner';
-import { ProxyServer } from './proxy';
 import { logger } from '../core/logger';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -17,7 +16,6 @@ export interface DevServerConfig {
  */
 export class FusionDevServer {
     private processRunner: ProcessRunner;
-    private proxyServer: ProxyServer | null = null;
 
     constructor() {
         this.processRunner = new ProcessRunner();
@@ -29,8 +27,12 @@ export class FusionDevServer {
             webPath,
             webPort = 3000,
             apiPort = 5050,
-            useProxy = true,
+            useProxy = false,
         } = config;
+
+        if (useProxy) {
+            throw new Error('The legacy dev proxy is disabled because it conflicts with the Next.js port. Use the production runtime for single-port serving.');
+        }
 
         // Validate paths
         if (!fs.existsSync(apiPath)) {
@@ -62,25 +64,9 @@ export class FusionDevServer {
             cwd: path.resolve(webPath),
             color: 'green',
             env: {
-                NEXT_PUBLIC_API_URL: useProxy
-                    ? `http://localhost:${webPort}/api`
-                    : `http://localhost:${apiPort}`,
+                NEXT_PUBLIC_API_URL: `http://localhost:${apiPort}`,
             },
         });
-
-        // Start proxy if enabled
-        if (useProxy) {
-            this.proxyServer = new ProxyServer();
-
-            // Wait a bit for API to be ready
-            setTimeout(async () => {
-                await this.proxyServer!.start({
-                    port: webPort,
-                    apiTarget: `http://localhost:${apiPort}`,
-                    apiPrefix: '/api',
-                });
-            }, 3000);
-        }
 
         // Start processes
         await this.processRunner.run(processes);
@@ -91,16 +77,10 @@ export class FusionDevServer {
         logger.info('╚═══════════════════════════════════════╝\n');
         logger.info(`🌐 Web:  http://localhost:${webPort}`);
         logger.info(`🔌 API:  http://localhost:${apiPort}`);
-        if (useProxy) {
-            logger.info(`🔄 Proxy: Enabled (${webPort}/api → ${apiPort})`);
-        }
         logger.info('\n');
     }
 
     stop(): void {
         this.processRunner.stopAll();
-        if (this.proxyServer) {
-            this.proxyServer.stop();
-        }
     }
 }

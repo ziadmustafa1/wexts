@@ -117,5 +117,5 @@ Your app is live at: https://your-project.vercel.app
 
 ✅ Frontend: https://your-project.vercel.app
 ✅ API: https://your-project.vercel.app/api
-✅ Single deployment, zero configuration!
+This deprecated demo is not the production reference. Use `examples/hello-rpc` for the verified single-runtime path.
 ```

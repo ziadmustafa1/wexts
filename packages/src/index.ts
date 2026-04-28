@@ -6,6 +6,7 @@ export * as CreateFusion from './create-fusion';
 export * as DevServer from './dev-server';
 export * as Nest from './nest';
 export * as Next from './next';
+export * as Rpc from './rpc';
 
 // Client and Types are exported via subpaths in package.json
 export * from './types';

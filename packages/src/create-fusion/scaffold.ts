@@ -8,6 +8,9 @@ export interface ScaffoldOptions {
     packageManager?: 'npm' | 'pnpm' | 'yarn';
 }
 
+/**
+ * @deprecated Use the `wexts create` CLI and `examples/hello-rpc` canonical scaffold instead.
+ */
 export class ProjectScaffolder {
     async scaffold(options: ScaffoldOptions): Promise<void> {
         const { projectName, template } = options;
@@ -29,7 +32,7 @@ export class ProjectScaffolder {
         logger.success(`Project ${projectName} created successfully!`);
         logger.info(`\nNext steps:`);
         logger.info(`  cd ${projectName}`);
-        logger.info(`  fusion dev`);
+        logger.info(`  wexts dev`);
     }
 
     private async createMonorepo(projectPath: string, projectName: string): Promise<void> {
@@ -46,11 +49,11 @@ export class ProjectScaffolder {
             private: true,
             workspaces: ['apps/*', 'packages/*'],
             scripts: {
-                dev: 'fusion dev',
-                build: 'fusion build',
+                dev: 'wexts dev',
+                build: 'wexts build',
             },
             devDependencies: {
-                'wexts': '^1.0.0',
+                'wexts': '^3.0.2',
             },
         };
 
@@ -60,17 +63,21 @@ export class ProjectScaffolder {
         );
 
         // Create README
-        const readme = `# ${projectName}\n\nCreated with wexts\n\n## Getting Started\n\n\`\`\`bash\nfusion dev\n\`\`\`\n`;
+        const readme = `# ${projectName}\n\nCreated with the deprecated ProjectScaffolder compatibility API.\n\nUse examples/hello-rpc as the canonical Wexts reference.\n\n## Getting Started\n\n\`\`\`bash\nwexts dev\n\`\`\`\n`;
         await writeFile(join(projectPath, 'README.md'), readme);
     }
 
     private async createNestJSApp(projectPath: string, projectName: string): Promise<void> {
-        // TODO: Implement NestJS scaffolding
-        logger.info('Creating NestJS application...');
+        await writeFile(
+            join(projectPath, 'README.md'),
+            `# ${projectName}\n\nStandalone API scaffolding through ProjectScaffolder is deprecated. Use examples/hello-rpc or wexts create for the canonical path.\n`
+        );
     }
 
     private async createNextJSApp(projectPath: string, projectName: string): Promise<void> {
-        // TODO: Implement Next.js scaffolding
-        logger.info('Creating Next.js application...');
+        await writeFile(
+            join(projectPath, 'README.md'),
+            `# ${projectName}\n\nStandalone web scaffolding through ProjectScaffolder is deprecated. Use examples/hello-rpc or wexts create for the canonical path.\n`
+        );
     }
 }

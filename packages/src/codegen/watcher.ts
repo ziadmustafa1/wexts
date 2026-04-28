@@ -1,7 +1,6 @@
 import * as chokidar from 'chokidar';
 import { logger } from '../core/logger';
-import { NestJSParser } from './parser';
-import { ClientGenerator } from './generator';
+import { generateRpcClient } from './generator';
 
 export interface WatchOptions {
     projectPath: string;
@@ -55,21 +54,8 @@ export class CodegenWatcher {
 
     private async generateClient(projectPath: string, outputPath: string): Promise<void> {
         try {
-            const parser = new NestJSParser(projectPath);
-            const controllers = parser.findFusionControllers();
-
-            if (controllers.length === 0) {
-                logger.warn('No Fusion controllers found');
-                return;
-            }
-
-            const generator = new ClientGenerator();
-            await generator.generate({
-                controllers,
-                outputPath,
-            });
-
-            logger.success(`Generated client for ${controllers.length} controller(s)`);
+            const manifest = await generateRpcClient({ projectPath, outputPath });
+            logger.success(`Generated client for ${manifest.services.length} RPC service(s)`);
         } catch (error: any) {
             logger.error('Failed to generate client:', error.message);
         }

@@ -1,3 +1,9 @@
+# Deprecated Legacy Web Demo
+
+This web app belongs to the deprecated `demo/` tree. It is retained for historical reference only. Use `examples/hello-rpc` for the canonical verified Wexts path.
+
+---
+
 # Fusion Next.js Web
 
 Modern Next.js 16 frontend with wexts integration.

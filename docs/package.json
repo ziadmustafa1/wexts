@@ -9,10 +9,10 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-    "turbo": "latest",
-    "prettier": "latest",
+    "turbo": "^2.9.6",
+    "prettier": "^3.8.3",
     "typescript": "^5.9.3",
-    "wexts": "latest"
+    "wexts": "^3.0.2"
   },
   "packageManager": "pnpm@10.0.0"
 }

@@ -32,8 +32,8 @@
         "wexts-config": "workspace:*"
     },
     "devDependencies": {
-        "@netlify/build": "^29.0.0",
-        "@types/node": "^22.0.0",
+        "@netlify/build": "^29.59.2",
+        "@types/node": "^22.19.1",
         "typescript": "^5.9.3"
     },
     "peerDependencies": {

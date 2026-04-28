@@ -1,353 +1,377 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { logger } from '../core/logger';
-import * as pc from 'picocolors';
-import inquirer from 'inquirer';
 import * as fs from 'fs';
 import * as path from 'path';
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
+import { createRequire } from 'module';
+import * as pc from 'picocolors';
+import { logger } from '../core/logger';
 
-const program = new Command();
+interface CommonOptions {
+    cwd?: string;
+}
 
-program
-    .name('wexts')
-    .description('Wexts Framework - Next.js 16 + NestJS 11')
-    .version('2.0.0');
+export function createCliProgram(): Command {
+    const program = new Command();
 
-// Interactive Mode (when no command is provided)
-program
-    .action(async () => {
-        console.log(pc.cyan(`
-╔══════════════════════════════════════════╗
-║                                          ║
-║      ${pc.bold('🚀 Wexts Framework v2.0')}          ║
-║                                          ║
-║  Next.js 16 + NestJS 11 Full-Stack      ║
-║                                          ║
-╚══════════════════════════════════════════╝
-        `));
+    program
+        .name('wexts')
+        .description('Wexts - production-focused single-runtime Next.js + NestJS toolkit')
+        .version('3.0.2');
 
-        const { action } = await inquirer.prompt([
-            {
-                type: 'list',
-                name: 'action',
-                message: 'What would you like to do?',
-                choices: [
-                    { name: '📦 Create a new project', value: 'create' },
-                    { name: '🚀 Start development server', value: 'dev' },
-                    { name: '🔨 Build for production', value: 'build' },
-                    { name: '⚡ Generate code', value: 'generate' },
-                    { name: '🤖 Generate API client', value: 'codegen' },
-                    { name: '❌ Exit', value: 'exit' },
-                ],
-            },
-        ]);
+    program
+        .command('create <project-name>')
+        .description('Create a compatibility project from bundled legacy templates')
+        .option('-t, --template <template>', 'Legacy template to use (monorepo|api|web)', 'monorepo')
+        .option('--skip-install', 'Skip dependency installation', false)
+        .action(async (projectName: string, options: { template: string; skipInstall: boolean }) => {
+            await createProject(projectName, options.template, { skipInstall: options.skipInstall });
+        });
 
-        if (action === 'exit') {
-            logger.info('Goodbye! 👋');
-            process.exit(0);
-        }
-
-        // Route to appropriate command
-        if (action === 'create') {
-            const { projectName, template } = await inquirer.prompt([
-                {
-                    type: 'input',
-                    name: 'projectName',
-                    message: 'Project name:',
-                    default: 'my-wexts-app',
-                },
-                {
-                    type: 'list',
-                    name: 'template',
-                    message: 'Select template:',
-                    choices: [
-                        { name: '📦 Monorepo (Next.js + NestJS)', value: 'monorepo' },
-                        { name: '🎯 API only (NestJS)', value: 'api' },
-                        { name: '🌐 Web only (Next.js)', value: 'web' },
-                    ],
-                },
-            ]);
-
-            await createProject(projectName, template);
-        } else if (action === 'dev') {
-            logger.info(pc.green('🚀 Starting development servers...\n'));
-            logger.warn('Dev server not yet implemented');
-        } else if (action === 'build') {
-            logger.info(pc.blue('🔨 Building project...\n'));
-            logger.warn('Build not yet implemented');
-        } else if (action === 'generate') {
-            const { type, name } = await inquirer.prompt([
-                {
-                    type: 'list',
-                    name: 'type',
-                    message: 'What to generate?',
-                    choices: ['controller', 'module', 'service', 'page'],
-                },
-                {
-                    type: 'input',
-                    name: 'name',
-                    message: 'Name:',
-                },
-            ]);
-            logger.info(pc.magenta(`\n⚡ Generating ${type}: ${name}\n`));
-            logger.warn('Code generation not yet implemented');
-        } else if (action === 'codegen') {
-            logger.info(pc.cyan('\n🤖 Generating API client...\n'));
-            logger.warn('Codegen not yet implemented');
-        }
-    });
-
-// Create Command
-program
-    .command('create <project-name>')
-    .description('Create a new wexts project')
-    .option('-t, --template <template>', 'Template to use (monorepo|api|web)', 'monorepo')
-    .action(async (projectName: string, options: any) => {
-        await createProject(projectName, options.template);
-    });
-
-// Dev Command
-program
-    .command('dev')
-    .description('Start development servers')
-    .option('-a, --api <path>', 'Path to API project', './apps/api')
-    .option('-w, --web <path>', 'Path to Web project', './apps/web')
-    .option('-p, --port <port>', 'Port for web server', '3000')
-    .option('--api-port <port>', 'Port for API server', '5050')
-    .option('--no-proxy', 'Disable proxy server')
-    .action(async (options: any) => {
-        logger.info(pc.green('🚀 Starting Wexts development servers...\n'));
-
-        const { FusionDevServer } = await import('../dev-server/index.js');
-        const server = new FusionDevServer();
-
-        try {
+    program
+        .command('dev')
+        .description('Start local development processes')
+        .option('-a, --api <path>', 'Path to API project', './apps/api')
+        .option('-w, --web <path>', 'Path to Web project', './apps/web')
+        .option('-p, --port <port>', 'Port for web server', '3000')
+        .option('--api-port <port>', 'Port for API server', '5050')
+        .option('--proxy', 'Enable development proxy on a separate proxy port', false)
+        .action(async (options: { api: string; web: string; port: string; apiPort: string; proxy: boolean }) => {
+            const { FusionDevServer } = await import('../dev-server/index.js');
+            const server = new FusionDevServer();
             await server.start({
                 apiPath: options.api,
                 webPath: options.web,
-                webPort: parseInt(options.port),
-                apiPort: parseInt(options.apiPort),
+                webPort: Number(options.port),
+                apiPort: Number(options.apiPort),
                 useProxy: options.proxy,
             });
-        } catch (error: any) {
-            logger.error('Failed to start dev server:', error.message);
-            process.exit(1);
-        }
-    });
+        });
 
-// Build Command
-program
-    .command('build')
-    .description('Build for production')
-    .action(async () => {
-        logger.info(pc.blue('Building Wexts project...'));
+    program
+        .command('generate [type] [name]')
+        .alias('g')
+        .description('Generate RPC manifest/client, or scaffold a minimal RPC service')
+        .option('-p, --project <path>', 'Path to NestJS project', './apps/api')
+        .option('-o, --output <path>', 'Output directory for generated RPC client', './apps/web/lib/wexts')
+        .action(async (type: string | undefined, name: string | undefined, options: { project: string; output: string }) => {
+            if (!type || type === 'rpc') {
+                const { generateRpcClient } = await import('../codegen/index.js');
+                const manifest = await generateRpcClient({
+                    projectPath: path.resolve(options.project),
+                    outputPath: path.resolve(options.output),
+                });
+                logger.success(`Generated Wexts RPC client for ${manifest.services.length} service(s).`);
+                return;
+            }
 
-        // TODO: Build logic
-        logger.warn('Build not yet implemented');
-    });
+            if (type === 'service') {
+                if (!name) throw new Error('Service name is required: wexts generate service hello');
+                await scaffoldRpcService(path.resolve(options.project), name);
+                logger.success(`Created RPC service ${name}. Run wexts generate to update the client.`);
+                return;
+            }
 
-// Generate Command
-program
-    .command('generate <type> <name>')
-    .alias('g')
-    .description('Generate code (controller|module|page)')
-    .action(async (type: string, name: string) => {
-        logger.info(pc.magenta(`Generating ${type}: ${name}`));
+            throw new Error(`Unknown generator "${type}". Supported generators: rpc, service.`);
+        });
 
-        // TODO: Code generation
-        logger.warn('Code generation not yet implemented');
-    });
-
-// Codegen Command
-program
-    .command('codegen')
-    .description('Generate API client from NestJS controllers')
-    .option('-w, --watch', 'Watch mode - regenerate on changes')
-    .option('-p, --project <path>', 'Path to NestJS project', './apps/api')
-    .option('-o, --output <path>', 'Output path for generated client', './packages/api-client/src')
-    .action(async (options: any) => {
-        const { NestJSParser, ClientGenerator, CodegenWatcher } = await import('../codegen/index.js');
-
-        if (options.watch) {
-            logger.info(pc.cyan('Starting codegen in watch mode...'));
-            const watcher = new CodegenWatcher();
-            await watcher.watch({
-                projectPath: options.project,
-                outputPath: options.output,
+    program
+        .command('codegen')
+        .description('Alias for wexts generate rpc')
+        .option('-p, --project <path>', 'Path to NestJS project', './apps/api')
+        .option('-o, --output <path>', 'Output directory for generated RPC client', './apps/web/lib/wexts')
+        .action(async (options: { project: string; output: string }) => {
+            const { generateRpcClient } = await import('../codegen/index.js');
+            const manifest = await generateRpcClient({
+                projectPath: path.resolve(options.project),
+                outputPath: path.resolve(options.output),
             });
-        } else {
-            logger.info(pc.cyan('Generating API client...'));
-            const parser = new NestJSParser(options.project);
-            const controllers = parser.findFusionControllers();
+            logger.success(`Generated Wexts RPC client for ${manifest.services.length} service(s).`);
+        });
 
-            const generator = new ClientGenerator();
-            await generator.generate({
-                controllers,
-                outputPath: options.output,
+    program
+        .command('build')
+        .description('Build a Wexts project for production')
+        .option('--skip-generate', 'Skip RPC generation before build', false)
+        .option('-p, --project <path>', 'Path to NestJS project', './apps/api')
+        .option('-o, --output <path>', 'Output directory for generated RPC client', './apps/web/lib/wexts')
+        .action(async (options: { skipGenerate: boolean; project: string; output: string }) => {
+            if (!options.skipGenerate && fs.existsSync(options.project)) {
+                const { generateRpcClient } = await import('../codegen/index.js');
+                await generateRpcClient({
+                    projectPath: path.resolve(options.project),
+                    outputPath: path.resolve(options.output),
+                });
+            }
+            runScript('build', { cwd: process.cwd() });
+        });
+
+    program
+        .command('start')
+        .description('Start the production Wexts runtime')
+        .option('-c, --config <path>', 'Runtime config module path', './wexts.runtime.js')
+        .option('-p, --port <port>', 'Port to listen on', process.env.PORT ?? '3000')
+        .action(async (options: { config: string; port: string }) => {
+            const { startWextsRuntime } = await import('../runtime/index.js');
+            const configPath = path.resolve(options.config);
+            const runtimeConfig = fs.existsSync(configPath)
+                ? await loadRuntimeConfig(configPath)
+                : {};
+            await startWextsRuntime({
+                ...runtimeConfig,
+                port: Number(options.port),
+                dev: false,
             });
+        });
+
+    program
+        .command('vercel-build')
+        .description('Build for Vercel using Build Output API v3')
+        .option('-p, --project <path>', 'Path to NestJS project', './apps/api')
+        .option('-o, --output <path>', 'Output dir for RPC client', './apps/web/lib/wexts')
+        .option('-c, --config <path>', 'Runtime config module path', './wexts.runtime.js')
+        .option('--skip-codegen', 'Skip RPC generation', false)
+        .option('--skip-build', 'Skip project build step', false)
+        .option('--node-version <version>', 'Node.js version for Vercel function', '20')
+        .option('--max-duration <seconds>', 'Max duration for serverless function', '30')
+        .action(async (options: {
+            project: string;
+            output: string;
+            config: string;
+            skipCodegen: boolean;
+            skipBuild: boolean;
+            nodeVersion: string;
+            maxDuration: string;
+        }) => {
+            const { buildVercelOutput } = await import('../vercel-builder/index.js');
+            const result = await buildVercelOutput({
+                rootDir: process.cwd(),
+                apiProjectPath: options.project,
+                rpcOutputPath: options.output,
+                runtimeConfigPath: options.config,
+                skipCodegen: options.skipCodegen,
+                skipBuild: options.skipBuild,
+                nodeVersion: options.nodeVersion,
+                maxDuration: Number(options.maxDuration),
+            });
+            if (result.warnings.length > 0) {
+                for (const warning of result.warnings) logger.warn(warning);
+            }
+            if (result.errors.length > 0) {
+                for (const error of result.errors) logger.error(error);
+                process.exit(1);
+            }
+            logger.success('Vercel build output ready at .vercel/output');
+        });
+
+    program
+        .command('doctor')
+        .description('Validate Wexts project configuration')
+        .option('--security', 'Run security-specific checks', false)
+        .action(async (options: { security: boolean }) => {
+            const result = runDoctor(process.cwd(), options.security);
+            for (const warning of result.warnings) logger.warn(warning);
+            for (const error of result.errors) logger.error(error);
+            if (result.errors.length > 0) process.exit(1);
+            logger.success(options.security ? 'Security doctor passed.' : 'Doctor passed.');
+        });
+
+    return program;
+}
+
+export interface DoctorResult {
+    errors: string[];
+    warnings: string[];
+}
+
+export function runDoctor(cwd: string, security = false): DoctorResult {
+    const result: DoctorResult = { errors: [], warnings: [] };
+    const pkgPath = path.join(cwd, 'package.json');
+
+    if (!fs.existsSync(pkgPath)) {
+        result.errors.push('package.json not found.');
+        return result;
+    }
+
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+    if (!pkg.packageManager?.startsWith('pnpm@')) {
+        result.warnings.push('packageManager should pin pnpm.');
+    }
+
+    for (const dir of ['apps/api', 'apps/web']) {
+        if (!fs.existsSync(path.join(cwd, dir))) {
+            result.warnings.push(`${dir} not found; some Wexts commands may need explicit paths.`);
         }
-    });
+    }
 
-// Helper function for creating project
-async function createProject(projectName: string, template: string) {
-    logger.info(pc.cyan(`Creating wexts project: ${pc.bold(projectName)}`));
-    logger.info(`Template: ${template}`);
+    if (fs.existsSync(path.join(cwd, 'apps/api')) && fs.existsSync(path.join(cwd, 'apps/web'))) {
+        result.warnings.push('Development mode starts separate web/API processes. Single-port serving is the production `wexts start` runtime path.');
+    }
 
+    if (security) {
+        const source = readAllText(cwd, ['apps/api/src', 'packages/templates/nestjs-api/src']);
+        if (source.includes('default-secret')) {
+            result.errors.push('JWT fallback "default-secret" found. Production apps must fail without a strong JWT_SECRET.');
+        }
+        if (/origin:\s*['"]\*['"]/.test(source)) {
+            result.errors.push('Wildcard CORS origin found. Use an explicit origin allowlist.');
+        }
+    }
+
+    return result;
+}
+
+async function createProject(projectName: string, template: string, options: { skipInstall: boolean }): Promise<void> {
     const projectPath = path.join(process.cwd(), projectName);
-
     if (fs.existsSync(projectPath)) {
-        logger.error(`Directory ${projectName} already exists!`);
-        process.exit(1);
+        throw new Error(`Directory already exists: ${projectName}`);
     }
 
-    // Helper to resolve template path
-    function getTemplatePath(): string {
-        // Try multiple locations
-        const possiblePaths = [
-            path.join(__dirname, '../../templates'), // When running from dist/cli/index.js
-            path.join(__dirname, '../templates'),    // Alternative structure
-            path.join(process.cwd(), 'templates'),   // Local dev
-            path.resolve(__dirname, '..', '..', 'templates') // Absolute resolve
-        ];
-
-        for (const p of possiblePaths) {
-            if (fs.existsSync(p)) {
-                return p;
-            }
-        }
-        return '';
-    }
-
-    const templatePath = getTemplatePath();
-
+    const templatePath = findTemplatePath();
     if (!templatePath) {
-        logger.error(`❌ Template directory not found!`);
-        logger.info(`Searched in:`);
-        logger.info(`  - ${path.join(__dirname, '../../templates')}`);
-        logger.info(`  - ${path.join(__dirname, '../templates')}`);
-        logger.info(`  - ${path.join(process.cwd(), 'templates')}`);
-
-        // Fallback to basic structure if templates are missing (for dev/test)
-        logger.warn('⚠️ Using fallback scaffolding (empty structure)');
-        fs.mkdirSync(projectPath, { recursive: true });
-        fs.mkdirSync(path.join(projectPath, 'apps'), { recursive: true });
-        fs.mkdirSync(path.join(projectPath, 'packages'), { recursive: true });
-    } else {
-        logger.info(`📦 Copying templates from: ${templatePath}`);
-
-        fs.mkdirSync(projectPath, { recursive: true });
-        fs.mkdirSync(path.join(projectPath, 'apps'), { recursive: true });
-        fs.mkdirSync(path.join(projectPath, 'packages'), { recursive: true });
-
-        // Copy NestJS API Template
-        const apiTemplatePath = path.join(templatePath, 'nestjs-api');
-        const apiDestPath = path.join(projectPath, 'apps/api');
-        if (fs.existsSync(apiTemplatePath)) {
-            fs.cpSync(apiTemplatePath, apiDestPath, { recursive: true });
-            logger.success('  - Copied API template');
-
-            // Copy .env.example to .env
-            const envExamplePath = path.join(apiDestPath, '.env.example');
-            const envPath = path.join(apiDestPath, '.env');
-            if (fs.existsSync(envExamplePath) && !fs.existsSync(envPath)) {
-                fs.copyFileSync(envExamplePath, envPath);
-                logger.success('  - Created .env from .env.example');
-            }
-        } else {
-            logger.warn(`  ⚠️ API template not found at ${apiTemplatePath}`);
-        }
-
-        // Copy Next.js Web Template
-        const webTemplatePath = path.join(templatePath, 'nextjs-web');
-        const webDestPath = path.join(projectPath, 'apps/web');
-        if (fs.existsSync(webTemplatePath)) {
-            fs.cpSync(webTemplatePath, webDestPath, { recursive: true });
-            logger.success('  - Copied Web template');
-        } else {
-            logger.warn(`  ⚠️ Web template not found at ${webTemplatePath}`);
-        }
+        throw new Error('Template directory not found in package.');
     }
 
-    // Create package.json
-    const packageJson = {
-        name: projectName,
-        version: "0.0.0",
-        private: true,
-        scripts: {
-            "build": "pnpm exec turbo build",
-            "dev": "pnpm exec turbo dev",
-            "lint": "pnpm exec turbo lint",
-            "format": "prettier --write \"**/*.{ts,tsx,md}\""
-        },
-        devDependencies: {
-            "turbo": "^2.6.1",
-            "prettier": "latest",
-            "typescript": "^5.9.3",
-            "wexts": "latest"
-        },
-        packageManager: "pnpm@10.0.0"
-    };
+    fs.mkdirSync(projectPath, { recursive: true });
 
-    fs.writeFileSync(
-        path.join(projectPath, 'package.json'),
-        JSON.stringify(packageJson, null, 2)
-    );
-
-    // Create turbo.json
-    const turboJson = {
-        "$schema": "https://turbo.build/schema.json",
-        "tasks": {
-            "build": {
-                "dependsOn": ["^build"],
-                "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    if (template === 'monorepo') {
+        fs.mkdirSync(path.join(projectPath, 'apps'), { recursive: true });
+        fs.cpSync(path.join(templatePath, 'nestjs-api'), path.join(projectPath, 'apps/api'), { recursive: true });
+        fs.cpSync(path.join(templatePath, 'nextjs-web'), path.join(projectPath, 'apps/web'), { recursive: true });
+        fs.writeFileSync(path.join(projectPath, 'pnpm-workspace.yaml'), "packages:\n  - 'apps/*'\n");
+        fs.writeFileSync(path.join(projectPath, 'package.json'), JSON.stringify({
+            name: projectName,
+            private: true,
+            packageManager: 'pnpm@10.22.0',
+            scripts: {
+                dev: 'wexts dev',
+                generate: 'wexts generate',
+                build: 'wexts build',
+                start: 'wexts start',
+                doctor: 'wexts doctor',
             },
-            "lint": {},
-            "dev": {
-                "cache": false,
-                "persistent": true
-            }
-        }
-    };
+            devDependencies: {
+                wexts: 'latest',
+            },
+        }, null, 2));
+    } else if (template === 'api') {
+        fs.cpSync(path.join(templatePath, 'nestjs-api'), projectPath, { recursive: true });
+    } else if (template === 'web') {
+        fs.cpSync(path.join(templatePath, 'nextjs-web'), projectPath, { recursive: true });
+    } else {
+        throw new Error(`Unknown template "${template}".`);
+    }
 
-    fs.writeFileSync(
-        path.join(projectPath, 'turbo.json'),
-        JSON.stringify(turboJson, null, 2)
-    );
-
-    // Create pnpm-workspace.yaml
-    const pnpmWorkspace = `packages:
-  - 'apps/*'
-  - 'packages/*'
-`;
-    fs.writeFileSync(
-        path.join(projectPath, 'pnpm-workspace.yaml'),
-        pnpmWorkspace
-    );
-
-    logger.success('✅ Project structure created');
-    logger.info('📦 Installing dependencies...');
-
-    try {
-        // Check if pnpm is installed
-        try {
-            execSync('pnpm --version', { stdio: 'ignore' });
-        } catch {
-            logger.info('Installing pnpm...');
-            execSync('npm install -g pnpm', { stdio: 'ignore' });
-        }
-
-        execSync('pnpm install', { cwd: projectPath, stdio: 'inherit' });
-        logger.success('✅ Dependencies installed');
-
-        logger.info(pc.green(`\n🎉 Project ${projectName} created successfully!`));
-        logger.info(`\nTo get started:\n`);
-        logger.info(pc.cyan(`  cd ${projectName}`));
-        logger.info(pc.cyan(`  pnpm dev\n`));
-    } catch (error) {
-        logger.error('Failed to install dependencies');
+    if (!options.skipInstall) {
+        runCommand(detectPackageManager(projectPath), ['install'], projectPath);
     }
 }
 
-program.parse();
+async function scaffoldRpcService(apiProjectPath: string, rawName: string): Promise<void> {
+    const serviceName = toKebabCase(rawName);
+    const className = `${toPascalCase(serviceName)}Service`;
+    const dir = path.join(apiProjectPath, 'src', serviceName);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, `${serviceName}.service.ts`), `import { Injectable } from '@nestjs/common';
+import { RpcMethod, RpcService } from 'wexts/nest';
+
+@Injectable()
+@RpcService({ name: '${toCamelCase(serviceName)}', requireAuth: false })
+export class ${className} {
+  @RpcMethod()
+  async sayHello(name: string): Promise<string> {
+    return \`Hello, \${name}!\`;
+  }
+}
+`);
+}
+
+function runScript(script: string, options: CommonOptions): void {
+    const cwd = options.cwd ?? process.cwd();
+    const packageManager = detectPackageManager(cwd);
+    const args = packageManager === 'npm' ? ['run', script] : ['run', script];
+    runCommand(packageManager, args, cwd);
+}
+
+function runCommand(command: string, args: string[], cwd: string): void {
+    const result = spawnSync(command, args, { cwd, stdio: 'inherit', shell: process.platform === 'win32' });
+    if (result.status !== 0) {
+        throw new Error(`${command} ${args.join(' ')} failed with exit code ${result.status}`);
+    }
+}
+
+function detectPackageManager(cwd: string): 'pnpm' | 'npm' {
+    if (fs.existsSync(path.join(cwd, 'pnpm-lock.yaml'))) return 'pnpm';
+    return 'npm';
+}
+
+function findTemplatePath(): string | undefined {
+    const candidates = [
+        path.resolve(__dirname, '../../templates'),
+        path.resolve(__dirname, '../templates'),
+        path.resolve(process.cwd(), 'packages/templates'),
+    ];
+
+    return candidates.find((candidate) => fs.existsSync(candidate));
+}
+
+function readAllText(cwd: string, dirs: string[]): string {
+    let text = '';
+    for (const dir of dirs) {
+        const absolute = path.join(cwd, dir);
+        if (!fs.existsSync(absolute)) continue;
+        for (const file of walk(absolute)) {
+            if (file.endsWith('.ts') || file.endsWith('.tsx') || file.endsWith('.js')) {
+                text += fs.readFileSync(file, 'utf8');
+            }
+        }
+    }
+    return text;
+}
+
+function walk(dir: string): string[] {
+    return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+        const absolute = path.join(dir, entry.name);
+        if (entry.isDirectory()) return walk(absolute);
+        return [absolute];
+    });
+}
+
+function toKebabCase(value: string): string {
+    return value.replace(/([a-z0-9])([A-Z])/g, '$1-$2').replace(/[_\s]+/g, '-').toLowerCase();
+}
+
+function toPascalCase(value: string): string {
+    return toKebabCase(value).split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join('');
+}
+
+function toCamelCase(value: string): string {
+    const pascal = toPascalCase(value);
+    return pascal.charAt(0).toLowerCase() + pascal.slice(1);
+}
+
+function pathToFileUrl(filePath: string): string {
+    return `file://${filePath}`;
+}
+
+async function loadRuntimeConfig(configPath: string): Promise<Record<string, unknown>> {
+    if (configPath.endsWith('.mjs')) {
+        const mod = await import(pathToFileUrl(configPath));
+        return (mod.default ?? mod) as Record<string, unknown>;
+    }
+
+    const require = createRequire(__filename);
+    const mod = require(configPath);
+    return (mod.default ?? mod) as Record<string, unknown>;
+}
+
+const invokedAsCli = process.argv[1]
+    && (path.basename(process.argv[1]) === 'wexts' || path.resolve(process.argv[1]).includes(`${path.sep}dist${path.sep}cli${path.sep}index`));
+
+if (invokedAsCli && !process.env.VITEST) {
+    createCliProgram().parseAsync(process.argv).catch((error) => {
+        logger.error(error instanceof Error ? error.message : String(error));
+        process.exit(1);
+    });
+}

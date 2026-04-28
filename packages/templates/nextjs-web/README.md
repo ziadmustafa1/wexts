@@ -1,3 +1,11 @@
+# Deprecated Legacy Web Template
+
+This template predates the verified `examples/hello-rpc` runtime/RPC/security model. It is retained for compatibility and should not be used as the production reference.
+
+Use `examples/hello-rpc` for the canonical generated-RPC path.
+
+---
+
 # Fusion Next.js Web
 
 Modern Next.js 16 frontend with wexts integration.

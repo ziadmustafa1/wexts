@@ -30,9 +30,9 @@ export function HeroSection({ mounted }: HeroSectionProps) {
 
                 {/* Subtitle */}
                 <p className={`text-center text-lg sm:text-xl text-gray-400 max-w-3xl mx-auto mb-12 transition-all duration-700 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-                    Build production-ready applications with Next.js 16 and NestJS 10.
+                    Build production-focused applications with Next.js 16 and NestJS 11.
                     <br className="hidden sm:block" />
-                    Type-safe from database to UI. Zero configuration.
+                    Generated RPC, a single production runtime, and explicit release checks.
                 </p>
 
                 {/* CTA Buttons */}
@@ -69,7 +69,7 @@ export function HeroSection({ mounted }: HeroSectionProps) {
                             <code className="font-mono text-sm">
                                 <div className="flex items-start gap-3">
                                     <span className="text-gray-600 select-none">$</span>
-                                    <span className="text-gray-300">npx wexts my-app</span>
+                                    <span className="text-gray-300">pnpm --filter wexts-example-hello-rpc smoke</span>
                                 </div>
                             </code>
                         </div>

@@ -11,30 +11,32 @@ export function FeaturesContent() {
                 <Badge className="mb-4">Features</Badge>
                 <h1 id="features">Core Features</h1>
                 <p className="text-xl text-muted-foreground">
-                    Discover what makes wexts the perfect framework for building modern full-stack applications.
+                    Wexts provides a production-focused toolkit for generated RPC, a single-runtime production server,
+                    and explicit security controls.
                 </p>
             </div>
 
-            <h2 id="rpc-auto-linking">🔗 RPC Auto-Linking</h2>
+            <h2 id="generated-rpc">🔗 Generated RPC</h2>
             <p>
-                The heart of wexts is its RPC (Remote Procedure Call) auto-linking system.
-                It automatically generates a fully type-safe client SDK from your NestJS backend services.
+                The heart of wexts is generated RPC.
+                It generates a typed client from explicit <code>@RpcService()</code> and <code>@RpcMethod()</code> metadata.
             </p>
 
             <Card className="my-6">
                 <CardHeader>
                     <Zap className="text-primary mb-2" size={32} />
-                    <CardTitle>Zero Configuration Required</CardTitle>
+                    <CardTitle>Explicit RPC Metadata</CardTitle>
                     <CardDescription>
-                        No need to manually define API routes, fetch logic, or type definitions.
-                        wexts does it all automatically.
+                        Define the service boundary explicitly, run codegen, and use the generated client.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <h4 className="font-semibold mb-2">Backend Service</h4>
                     <CodeBlock language="typescript" filename="users.service.ts">
                         {`@Injectable()
+@RpcService({ name: 'users' })
 export class UsersService {
+  @RpcMethod()
   async getUser(id: string): Promise<User> {
     return this.db.user.findUnique({ where: { id } });
   }
@@ -50,14 +52,14 @@ export class UsersService {
             </Card>
 
             <Callout type="info" title="How it works">
-                wexts analyzes your NestJS services at build time and generates TypeScript types
-                and client methods that mirror your backend API. This happens automatically in development mode.
+                Wexts analyzes explicitly decorated services during codegen and generates TypeScript types
+                and client methods that mirror your RPC boundary. Production start does not run codegen.
             </Callout>
 
             <h2 id="fusion-insight">📊 Fusion Insight GUI</h2>
             <p>
-                A powerful visual dashboard for monitoring and managing your full-stack application.
-                Available at <code>http://localhost:3001/insight</code> in development mode.
+                Fusion Insight is an experimental development dashboard concept for monitoring and managing a Wexts app.
+                It is not part of the verified production release path.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
@@ -105,7 +107,7 @@ export class UsersService {
             <h2 id="more-features">More Features</h2>
             <ul>
                 <li><a href="/docs/features/type-safety">End-to-End Type Safety</a></li>
-                <li><a href="/docs/features/rpc">RPC Auto-Linking Deep Dive</a></li>
+                <li><a href="/docs/features/rpc">Generated RPC Guide</a></li>
                 <li><a href="/docs/features/insight">Fusion Insight Details</a></li>
             </ul>
         </article>

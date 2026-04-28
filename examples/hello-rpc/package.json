@@ -1,0 +1,33 @@
+{
+  "name": "wexts-example-hello-rpc",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.22.0",
+  "scripts": {
+    "dev": "wexts dev",
+    "generate": "wexts generate -p apps/api -o apps/web/lib/wexts",
+    "build": "pnpm run generate && tsc -p apps/api/tsconfig.json && next build apps/web",
+    "start": "wexts start -c ./wexts.runtime.js",
+    "vercel-build": "wexts vercel-build -p apps/api -o apps/web/lib/wexts -c ./wexts.runtime.js",
+    "doctor": "wexts doctor",
+    "doctor:security": "wexts doctor --security",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.19",
+    "@nestjs/core": "^11.1.19",
+    "@nestjs/platform-fastify": "^11.1.19",
+    "next": "16.2.4",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "wexts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.9.3"
+  }
+}

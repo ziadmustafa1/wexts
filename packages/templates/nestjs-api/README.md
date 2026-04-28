@@ -1,3 +1,11 @@
+# Deprecated Legacy API Template
+
+This template predates the verified `examples/hello-rpc` runtime/RPC/security model. It is retained for compatibility and should not be used as the production reference.
+
+Use `examples/hello-rpc` for the canonical generated-RPC path.
+
+---
+
 # Fusion NestJS API
 
 Complete NestJS 10 backend with authentication, Prisma ORM, and CRUD operations.
@@ -8,7 +16,7 @@ Complete NestJS 10 backend with authentication, Prisma ORM, and CRUD operations.
 - ✅ Prisma ORM (SQLite for development)
 - ✅ User Management
 - ✅ Todo CRUD Operations
-- ✅ Fusion Decorators for Auto API Client Generation
+- ⚠️ Legacy Fusion decorator notes; canonical RPC uses `@RpcService()` and `@RpcMethod()`
 - ✅ Fastify Adapter
 - ✅ Input Validation
 

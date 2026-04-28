@@ -37,7 +37,7 @@ export function DocsIndexContent() {
                         <ArrowRight className="text-primary opacity-0 group-hover:opacity-100 transition-opacity" size={20} />
                     </div>
                     <p className="text-muted-foreground">
-                        Explore RPC auto-linking, Fusion Insight, and other powerful features
+                        Explore generated RPC, the production runtime, and experimental tooling
                     </p>
                 </Link>
 

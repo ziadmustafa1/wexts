@@ -44,6 +44,14 @@
     "lint": {
       "outputs": []
     },
+    "vercel-build": {
+      "dependsOn": [
+        "build"
+      ],
+      "outputs": [
+        ".vercel/output/**"
+      ]
+    },
     "clean": {
       "cache": false
     }

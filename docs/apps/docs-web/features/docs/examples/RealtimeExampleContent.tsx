@@ -58,7 +58,7 @@ export function RealtimeExampleContent() {
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
-  cors: { origin: '*' },
+  cors: { origin: ['https://app.example.com'] },
   namespace: '/chat',
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
