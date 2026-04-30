@@ -49,21 +49,21 @@ export function TableOfContents() {
     if (headings.length === 0) return null;
 
     return (
-        <aside className="hidden xl:block w-64 border-l border-border">
-            <div className="sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto py-6 px-4">
-                <h4 className="font-semibold mb-4 text-sm">On this page</h4>
+        <div className="border-l border-slate-900 pl-5">
+            <div className="max-h-[calc(100vh-6rem)] overflow-y-auto py-2">
+                <h4 className="mb-4 font-mono text-xs uppercase tracking-[0.22em] text-slate-600">On this page</h4>
                 <nav className="space-y-1">
                     {headings.map((heading, index) => (
                         <a
                             key={heading.id || `heading-${index}`}
                             href={`#${heading.id}`}
                             className={cn(
-                                "block text-sm transition-all py-1.5",
-                                "hover:text-primary",
+                                "block rounded-lg py-1.5 text-sm transition-all",
+                                "hover:text-amber-100",
                                 heading.level === 3 && "pl-4",
                                 activeId === heading.id
-                                    ? "text-primary font-medium border-l-2 border-primary pl-3"
-                                    : "text-muted-foreground"
+                                    ? "text-amber-100"
+                                    : "text-slate-500"
                             )}
                             onClick={(e) => {
                                 e.preventDefault();
@@ -78,6 +78,6 @@ export function TableOfContents() {
                     ))}
                 </nav>
             </div>
-        </aside>
+        </div>
     );
 }

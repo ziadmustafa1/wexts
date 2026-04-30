@@ -1,14 +1,25 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Archivo, IBM_Plex_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Navbar } from '@/components/Navbar';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+const archivo = Archivo({
+    subsets: ['latin'],
+    variable: '--font-sans',
+    display: 'swap',
+});
+
+const plexMono = IBM_Plex_Mono({
+    subsets: ['latin'],
+    weight: ['400', '500', '600'],
+    variable: '--font-mono',
+    display: 'swap',
+});
 
 export const metadata: Metadata = {
-    title: 'wexts Documentation - Next.js + NestJS Framework',
-    description: 'Complete documentation for wexts - the full-stack framework for perfectionists. Zero API boilerplate, type-safe from database to client.',
+    title: 'Wexts Documentation - Next.js + NestJS Toolkit',
+    description: 'Current Wexts 4 documentation for generated RPC, the single production runtime, Vercel Build Output support, and Wexts Shield.',
     keywords: ['wexts', 'Next.js', 'NestJS', 'TypeScript', 'Full-stack', 'Framework', 'RPC'],
 };
 
@@ -19,7 +30,7 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={inter.className}>
+            <body className={`${archivo.variable} ${plexMono.variable}`}>
                 <ThemeProvider defaultTheme="dark">
                     <Navbar />
                     <main className="pt-16">

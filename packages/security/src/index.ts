@@ -77,6 +77,30 @@ export class SecurityError extends Error {
   }
 }
 
+export class WextsSecurityError extends SecurityError {
+  readonly suggestedFix?: string;
+  readonly docsSlug?: string;
+
+  constructor(
+    message: string,
+    statusCode = 403,
+    code = 'WEXTS_SECURITY_ERROR',
+    options: { suggestedFix?: string; docsSlug?: string; cause?: unknown } = {}
+  ) {
+    super(message, statusCode, code);
+    this.name = 'WextsSecurityError';
+    this.suggestedFix = options.suggestedFix;
+    this.docsSlug = options.docsSlug;
+    if (options.cause !== undefined) {
+      Object.defineProperty(this, 'cause', {
+        value: options.cause,
+        configurable: true,
+        writable: true,
+      });
+    }
+  }
+}
+
 const DEFAULT_REDACTED_FIELDS = [
   'authorization',
   'cookie',

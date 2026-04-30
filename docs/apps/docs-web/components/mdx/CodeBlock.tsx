@@ -20,26 +20,22 @@ export function CodeBlock({ children, language = 'typescript', filename, showLin
     };
 
     return (
-        <div className="my-6 rounded-lg overflow-hidden border border-border bg-zinc-950 dark:bg-zinc-900 shadow-lg">
-            {/* Header with filename and language badge */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-900/50">
-                <div className="flex items-center gap-2">
+        <div className="my-6 min-w-0 overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 shadow-2xl shadow-black/20">
+            <div className="flex min-w-0 items-center justify-between gap-3 border-b border-slate-800 bg-slate-900/40 px-4 py-3">
+                <div className="flex min-w-0 items-center gap-2">
                     {filename && (
-                        <span className="text-sm font-medium text-zinc-300">
+                        <span className="truncate text-sm font-medium text-slate-300">
                             {filename}
                         </span>
                     )}
-                    <span className="px-2 py-0.5 text-xs font-semibold rounded bg-primary/10 text-primary border border-primary/20">
+                    <span className="shrink-0 rounded border border-amber-300/20 bg-amber-300/10 px-2 py-0.5 text-xs font-semibold text-amber-100">
                         {language}
                     </span>
                 </div>
 
-                {/* Copy Button */}
                 <button
                     onClick={handleCopy}
-                    className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md
-                             bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-zinc-100
-                             transition-all duration-200 border border-zinc-700 hover:border-zinc-600"
+                    className="flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1 text-xs font-medium text-slate-300 transition hover:border-slate-600 hover:bg-slate-800 hover:text-slate-100"
                     aria-label="Copy code"
                 >
                     {copied ? (
@@ -56,18 +52,17 @@ export function CodeBlock({ children, language = 'typescript', filename, showLin
                 </button>
             </div>
 
-            {/* Code Content */}
-            <div className="relative">
-                <pre className="overflow-x-auto p-4 text-sm leading-relaxed">
-                    <code className="font-mono text-zinc-100">
+            <div className="relative max-w-full overflow-hidden">
+                <pre className="max-w-full overflow-x-auto p-4 text-sm leading-relaxed">
+                    <code className="font-mono text-slate-100">
                         {showLineNumbers ? (
-                            <div className="table">
+                            <div className="table min-w-max">
                                 {children.split('\n').map((line, i) => (
                                     <div key={i} className="table-row">
-                                        <span className="table-cell pr-3 text-right select-none text-zinc-600 font-medium">
+                                        <span className="table-cell select-none pr-3 text-right font-medium text-slate-600">
                                             {i + 1}
                                         </span>
-                                        <span className="table-cell pl-3 border-l border-zinc-800">
+                                        <span className="table-cell border-l border-slate-800 pl-3">
                                             {line}
                                         </span>
                                     </div>

@@ -6,7 +6,7 @@ This API app belongs to the deprecated `demo/` tree. It is retained for historic
 
 # Fusion NestJS API
 
-Complete NestJS 10 backend with authentication, Prisma ORM, and CRUD operations.
+Deprecated demo backend. The verified Wexts 4 starter uses NestJS 11, generated RPC, and no required Prisma/Auth/Todos stack.
 
 ## Features
 

@@ -100,7 +100,7 @@ const App: React.FC = () => {
             <div className="flex flex-col items-center justify-center py-20 text-center animate-fade-in">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-violet-600 dark:text-violet-400 text-sm mb-8 animate-pulse-slow shadow-sm">
                 <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                v2.0 Release (Next.js 16 + NestJS 10)
+                Wexts 4 (Next.js 16 + NestJS 11)
               </div>
               <h1 className="text-5xl md:text-7xl font-extrabold text-zinc-900 dark:text-white tracking-tight mb-6 max-w-4xl">
                 Next.js + NestJS. <br/>
@@ -109,9 +109,8 @@ const App: React.FC = () => {
                 </span>
               </h1>
               <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mb-10 leading-relaxed">
-                The full-stack framework for perfectionists. Zero API boilerplate. 
-                Type-safe from database to client. Automatic SDK generation. 
-                Monorepo made simple.
+                Production-focused single-runtime toolkit. Generated RPC,
+                Vercel Build Output support, and Wexts Shield application-layer protection.
               </p>
               <div className="flex gap-4">
                 <button 
@@ -143,7 +142,7 @@ const App: React.FC = () => {
                  <div className="p-6 bg-white dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800 rounded-2xl hover:border-blue-500/30 transition-colors shadow-sm dark:shadow-none">
                     <Layers className="w-8 h-8 text-blue-600 dark:text-blue-400 mb-4" />
                     <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Monorepo Native</h3>
-                    <p className="text-zinc-600 dark:text-zinc-500">Built on TurboRepo. Shared types, DTOs, and UI library (Tailwind v4) out of the box with NestJS 10.</p>
+                    <p className="text-zinc-600 dark:text-zinc-500">Built on TurboRepo. Use the verified starter with Next.js 16, React 19, NestJS 11, and Fastify 5.</p>
                  </div>
               </div>
             </div>

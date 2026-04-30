@@ -26,7 +26,7 @@
 - No fake hardcoded SDKs or generated clients.
 - No production `ts-node`, file watchers, or codegen during `start`.
 - No runtime service scanning.
-- No claims of DDoS-proofing, battle-tested status, or universal production readiness.
+- No claims of DDoS-proofing, field-proven status, or universal production readiness.
 - No dead placeholder commands such as "not implemented".
 - No secret logging or client-side secret exposure.
 - Do not revert unrelated user changes.

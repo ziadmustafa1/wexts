@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createWextsRpcClient, FusionFetcher } from './fetcher';
+import { WextsRpcError } from '../errors';
 
 // Mock global fetch
 const fetchMock = vi.fn();
@@ -36,7 +37,10 @@ describe('FusionFetcher', () => {
             statusText: 'Not Found',
         });
 
-        await expect(fetcher.get('/error')).rejects.toThrow('Fusion API Error: 404 Not Found');
+        await expect(fetcher.get('/error')).rejects.toMatchObject({
+            code: 'WEXTS_API_REQUEST_FAILED',
+            message: 'Fusion API Error: 404 Not Found',
+        });
     });
 
     it('creates an RPC client that exposes generated services and calls the correct endpoint', async () => {
@@ -85,5 +89,58 @@ describe('FusionFetcher', () => {
         });
 
         expect(() => client.missing.sayHello('Bob')).toThrow('Wexts RPC service not found: missing');
+    });
+
+    it('fails clearly when the RPC manifest is missing', () => {
+        const client = createWextsRpcClient(undefined);
+
+        expect(() => client.hello.sayHello('Bob')).toThrow(WextsRpcError);
+        expect(() => client.hello.sayHello('Bob')).toThrow('Wexts RPC manifest is missing.');
+    });
+
+    it('fails clearly for unknown generated methods', () => {
+        const client = createWextsRpcClient({
+            schemaVersion: 1,
+            services: [{
+                name: 'hello',
+                className: 'HelloService',
+                importPath: 'src/hello.service',
+                requireAuth: false,
+                methods: [],
+            }],
+        });
+
+        expect(() => client.hello.missing('Bob')).toThrow('Wexts RPC method not found: hello.missing');
+    });
+
+    it('includes an RPC error code when the endpoint fails', async () => {
+        fetchMock.mockResolvedValueOnce({
+            ok: false,
+            status: 401,
+            statusText: 'Unauthorized',
+        });
+
+        const client = createWextsRpcClient({
+            schemaVersion: 1,
+            services: [{
+                name: 'hello',
+                className: 'HelloService',
+                importPath: 'src/hello.service',
+                requireAuth: true,
+                methods: [{
+                    name: 'sayHello',
+                    handlerName: 'sayHello',
+                    requireAuth: true,
+                    parameters: [{ name: 'name', type: 'string', optional: false }],
+                    returnType: 'string',
+                }],
+            }],
+        }, {
+            fetch: fetchMock,
+        });
+
+        await expect(client.hello.sayHello('Bob')).rejects.toMatchObject({
+            code: 'WEXTS_RPC_REQUEST_FAILED',
+        });
     });
 });

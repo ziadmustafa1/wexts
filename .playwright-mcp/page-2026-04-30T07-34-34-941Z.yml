@@ -1,0 +1,232 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation "Main navigation" [ref=e3]:
+      - link "Wexts" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img [ref=e6]
+        - generic [ref=e10]: Wexts
+      - generic [ref=e11]:
+        - link "Docs" [ref=e12] [cursor=pointer]:
+          - /url: /docs
+        - link "RPC" [ref=e13] [cursor=pointer]:
+          - /url: /docs/rpc
+        - link "Runtime" [ref=e14] [cursor=pointer]:
+          - /url: /docs/runtime
+        - link "Shield" [ref=e15] [cursor=pointer]:
+          - /url: /docs/wexts-shield
+      - generic [ref=e16]:
+        - link "Wexts on GitHub" [ref=e17] [cursor=pointer]:
+          - /url: https://github.com/ziadmustafa1/wexts
+          - img [ref=e18]
+        - link "Wexts on npm" [ref=e21] [cursor=pointer]:
+          - /url: https://www.npmjs.com/package/wexts
+          - img [ref=e22]
+        - link "Get started" [ref=e26] [cursor=pointer]:
+          - /url: /docs/getting-started
+  - main [ref=e27]:
+    - generic [ref=e28]:
+      - main [ref=e29]:
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - generic [ref=e34]: Wexts 4 verified starter path
+            - heading "Build Next.js + NestJS apps in one production runtime." [level=1] [ref=e36]
+            - paragraph [ref=e37]: Wexts gives you generated RPC, a single Fastify production server, Vercel Build Output support, and application-layer protection through Wexts Shield.
+            - generic [ref=e38]:
+              - code [ref=e39]: npx wexts create my-app
+              - button "Copy install command" [ref=e40] [cursor=pointer]:
+                - img [ref=e41]
+                - text: Copy
+            - generic [ref=e44]:
+              - link "Get started" [ref=e45] [cursor=pointer]:
+                - /url: /docs/getting-started
+                - text: Get started
+                - img [ref=e46]
+              - link "View docs" [ref=e48] [cursor=pointer]:
+                - /url: /docs
+              - link "GitHub" [ref=e49] [cursor=pointer]:
+                - /url: https://github.com/ziadmustafa1/wexts
+                - img [ref=e50]
+                - text: GitHub
+          - generic [ref=e54]:
+            - generic [ref=e60]: wexts.runtime.js
+            - generic [ref=e61]:
+              - generic [ref=e62]:
+                - generic [ref=e63]:
+                  - generic [ref=e64]: backend
+                  - img [ref=e65]
+                - code [ref=e68]: "@RpcService({ name: 'hello', requireAuth: false }) export class HelloService { @RpcMethod() async sayHello(name: string) { return `Hello, ${name}!`; } }"
+              - generic [ref=e69]:
+                - generic [ref=e70]: /rpc → Wexts RPC
+                - generic [ref=e71]: /api → NestJS
+                - generic [ref=e72]: /* → Next.js
+        - generic [ref=e74]:
+          - generic [ref=e75]: Verified stack
+          - generic [ref=e76]: Next.js 16
+          - generic [ref=e77]: NestJS 11
+          - generic [ref=e78]: React 19
+          - generic [ref=e79]: Fastify 5
+          - generic [ref=e80]: TypeScript 5.9
+          - generic [ref=e81]: Vercel Output API
+        - generic [ref=e83]:
+          - generic [ref=e84]:
+            - paragraph [ref=e85]: Why Wexts
+            - heading "Stop stitching two frameworks together by hand." [level=2] [ref=e86]
+            - paragraph [ref=e87]: Next.js and NestJS are powerful together, but production wiring often becomes a private framework. Wexts makes the boundary explicit.
+          - generic [ref=e88]:
+            - generic [ref=e89]:
+              - heading "Common friction" [level=3] [ref=e90]
+              - list [ref=e91]:
+                - listitem [ref=e92]: Separate frontend/backend wiring
+                - listitem [ref=e94]: Duplicated API clients and contracts
+                - listitem [ref=e96]: CORS, proxy, and port drift
+                - listitem [ref=e98]: Unclear Vercel vs VPS deployment paths
+                - listitem [ref=e100]: Runtime defaults that are hard to audit
+            - generic [ref=e102]:
+              - generic [ref=e103]:
+                - img [ref=e105]
+                - heading "Generated RPC" [level=3] [ref=e108]
+                - paragraph [ref=e109]: Explicit services produce a deterministic manifest and typed client.
+              - generic [ref=e110]:
+                - img [ref=e112]
+                - heading "One production server" [level=3] [ref=e115]
+                - paragraph [ref=e116]: Fastify serves Next, Nest, RPC, health checks, and Shield on one port.
+              - generic [ref=e117]:
+                - img [ref=e119]
+                - heading "CLI workflow" [level=3] [ref=e121]
+                - paragraph [ref=e122]: Create, generate, build, doctor, start, and Vercel output through one CLI.
+              - generic [ref=e123]:
+                - img [ref=e125]
+                - heading "Wexts Shield" [level=3] [ref=e128]
+                - paragraph [ref=e129]: Application-layer controls run before Next, Nest, and RPC.
+        - generic [ref=e131]:
+          - generic [ref=e132]:
+            - paragraph [ref=e133]: Runtime
+            - heading "One Fastify entrypoint. Three clear route surfaces." [level=2] [ref=e134]
+            - paragraph [ref=e135]: Production traffic enters one runtime. Wexts Shield runs first, then routes split to generated RPC, Nest, or Next.
+          - generic [ref=e137]:
+            - generic [ref=e138]:
+              - paragraph [ref=e139]: Request path
+              - generic [ref=e140]:
+                - generic [ref=e141]: Browser
+                - generic [ref=e143]: Fastify runtime
+            - generic [ref=e144]:
+              - generic [ref=e145]:
+                - paragraph [ref=e146]: /rpc
+                - heading "Wexts RPC" [level=3] [ref=e147]
+                - paragraph [ref=e148]: Manifest-driven service calls
+              - generic [ref=e149]:
+                - paragraph [ref=e150]: /api
+                - heading "NestJS" [level=3] [ref=e151]
+                - paragraph [ref=e152]: Backend routes and modules
+              - generic [ref=e153]:
+                - paragraph [ref=e154]: /*
+                - heading "Next.js" [level=3] [ref=e155]
+                - paragraph [ref=e156]: Frontend routes and assets
+        - generic [ref=e158]:
+          - generic [ref=e159]:
+            - paragraph [ref=e160]: RPC
+            - heading "Typed calls without pretending every controller is automatic." [level=2] [ref=e161]
+            - paragraph [ref=e162]: Wexts uses explicit decorators and generated files. The runtime reads manifests; it does not scan source files at request time.
+          - generic [ref=e163]:
+            - generic [ref=e164]:
+              - generic [ref=e165]:
+                - generic [ref=e166]: apps/api/src/hello.service.ts
+                - img [ref=e167]
+              - code [ref=e170]: "import { Injectable } from '@nestjs/common'; import { RpcMethod, RpcService } from 'wexts/nest'; @Injectable() @RpcService({ name: 'hello', requireAuth: false }) export class HelloService { @RpcMethod() async sayHello(name: string): Promise<string> { return `Hello, ${name}!`; } }"
+            - generic [ref=e171]:
+              - generic [ref=e172]:
+                - generic [ref=e173]: apps/web/app/page.tsx
+                - img [ref=e174]
+              - code [ref=e177]: "'use client'; import { useWexts } from '@/lib/wexts-provider'; export default function Page() { const wexts = useWexts(); async function run() { await wexts.hello.sayHello('Bob'); } return <button onClick={run}>Say hello</button>; }"
+        - generic [ref=e179]:
+          - generic [ref=e180]:
+            - paragraph [ref=e181]: CLI
+            - heading "A starter path you can actually verify." [level=2] [ref=e182]
+            - paragraph [ref=e183]: The default create command generates the clean Wexts starter. Legacy compatibility templates stay behind an explicit flag.
+          - code [ref=e186]: "$ npx wexts create my-app $ cd my-app $ pnpm install $ pnpm run dev # release checks $ pnpm run generate $ pnpm run build $ pnpm run doctor $ pnpm run doctor:security"
+        - generic [ref=e188]:
+          - generic [ref=e189]:
+            - paragraph [ref=e190]: Deploy
+            - heading "Two supported production targets, named clearly." [level=2] [ref=e191]
+            - paragraph [ref=e192]: Use the Node runtime where long-running processes matter. Use the Vercel Build Output path when the platform model fits your application.
+          - generic [ref=e193]:
+            - generic [ref=e194]:
+              - img [ref=e195]
+              - heading "VPS / Node" [level=3] [ref=e198]
+              - paragraph [ref=e199]: Single Fastify runtime with /health, /api/health, /rpc, /api, and Next routes.
+              - code [ref=e200]: wexts start -c ./wexts.runtime.js
+            - generic [ref=e201]:
+              - img [ref=e202]
+              - heading "Vercel" [level=3] [ref=e204]
+              - paragraph [ref=e205]: Build Output API support for Vercel deployments. Validate serverless behavior per app.
+              - code [ref=e206]: wexts vercel-build
+        - generic [ref=e208]:
+          - generic [ref=e209]:
+            - paragraph [ref=e210]: Wexts Shield
+            - heading "Application-layer protection before your routes run." [level=2] [ref=e211]
+            - paragraph [ref=e212]: Shield is intentionally scoped. It improves application behavior but does not replace provider or network-level defenses.
+          - generic [ref=e213]:
+            - generic [ref=e214]:
+              - img [ref=e215]
+              - paragraph [ref=e219]: Headers
+            - generic [ref=e220]:
+              - img [ref=e221]
+              - paragraph [ref=e225]: CORS
+            - generic [ref=e226]:
+              - img [ref=e227]
+              - paragraph [ref=e231]: CSRF
+            - generic [ref=e232]:
+              - img [ref=e233]
+              - paragraph [ref=e237]: Rate limits
+            - generic [ref=e238]:
+              - img [ref=e239]
+              - paragraph [ref=e243]: Body limits
+            - generic [ref=e244]:
+              - img [ref=e245]
+              - paragraph [ref=e249]: Concurrency
+            - generic [ref=e250]:
+              - img [ref=e251]
+              - paragraph [ref=e255]: Audit redaction
+          - generic [ref=e256]: Application-layer protection. Network-level DDoS still requires provider/WAF protection.
+        - generic [ref=e258]:
+          - generic [ref=e259]:
+            - paragraph [ref=e260]: Honest limits
+            - heading "Production-focused does not mean magic." [level=2] [ref=e261]
+            - paragraph [ref=e262]: Wexts is strongest when the runtime model is validated explicitly in your deployment environment.
+          - generic [ref=e263]:
+            - generic [ref=e264]:
+              - img [ref=e265]
+              - text: Development mode can use separate web and API processes.
+            - generic [ref=e268]:
+              - img [ref=e269]
+              - text: Vercel mode is serverless and should be validated per application.
+            - generic [ref=e272]:
+              - img [ref=e273]
+              - text: WebSockets need VPS or another long-running runtime.
+            - generic [ref=e276]:
+              - img [ref=e277]
+              - text: Distributed rate limits need a shared store such as Redis.
+        - generic [ref=e283]:
+          - paragraph [ref=e284]: Start verified
+          - heading "Create the starter, inspect the runtime, ship with the checklist." [level=2] [ref=e285]
+          - generic [ref=e286]:
+            - link "Read the guide" [ref=e287] [cursor=pointer]:
+              - /url: /docs/getting-started
+            - link "npm" [ref=e288] [cursor=pointer]:
+              - /url: https://www.npmjs.com/package/wexts
+              - img [ref=e289]
+              - text: npm
+      - generic [ref=e294]:
+        - generic [ref=e295]:
+          - img [ref=e297]
+          - generic [ref=e301]: Wexts. Production-focused Next.js + NestJS tooling.
+        - generic [ref=e302]:
+          - link "Docs" [ref=e303] [cursor=pointer]:
+            - /url: /docs
+          - link "Limitations" [ref=e304] [cursor=pointer]:
+            - /url: /docs/known-limitations
+          - link "GitHub" [ref=e305] [cursor=pointer]:
+            - /url: https://github.com/ziadmustafa1/wexts
+          - link "npm" [ref=e306] [cursor=pointer]:
+            - /url: https://www.npmjs.com/package/wexts
+  - alert [ref=e307]

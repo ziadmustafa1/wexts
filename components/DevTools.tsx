@@ -19,7 +19,7 @@ const DevTools: React.FC = () => {
         <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 text-xs text-zinc-500">
                <span className="w-2 h-2 rounded-full bg-green-500"></span> Next.js 16
-               <span className="w-2 h-2 rounded-full bg-green-500 ml-2"></span> NestJS 10
+               <span className="w-2 h-2 rounded-full bg-green-500 ml-2"></span> NestJS 11
             </div>
             <div className="h-4 w-[1px] bg-zinc-300 dark:bg-zinc-800"></div>
             <button 
@@ -105,8 +105,8 @@ const DevTools: React.FC = () => {
                             </div>
                             <div className="flex-1 p-3 font-mono text-xs text-zinc-600 dark:text-zinc-500 overflow-y-auto space-y-1">
                                 <div className="text-zinc-500 dark:text-zinc-400">[ wait ]  compiling /...</div>
-                                <div className="text-green-600 dark:text-green-400">[ ready ] compiled / in 320ms (Turbopack)</div>
-                                <div className="text-zinc-500 dark:text-zinc-400">[ info ]  GET / 200 in 80ms (PPR Active)</div>
+                                <div className="text-green-600 dark:text-green-400">[ ready ] compiled with Turbopack</div>
+                                <div className="text-zinc-500 dark:text-zinc-400">[ info ]  GET / 200 (PPR Active)</div>
                                 <div className="text-zinc-500 dark:text-zinc-400">[ info ]  GET /_next/static/chunks/main.js 200 in 5ms</div>
                                 <div className="text-blue-600 dark:text-blue-400">[ info ]  Rendering Server Component...</div>
                                 <div>[ wait ]  compiling /dashboard...</div>

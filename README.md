@@ -31,12 +31,32 @@ Development mode currently starts separate web/API processes for fast local iter
 ## Quickstart
 
 ```bash
+npx wexts create my-app
+cd my-app
 pnpm install
-pnpm --filter wexts-example-hello-rpc generate
-pnpm --filter wexts-example-hello-rpc build
-PORT=3210 pnpm --filter wexts-example-hello-rpc start
-WEXTS_SMOKE_URL=http://127.0.0.1:3210 pnpm --filter wexts-example-hello-rpc smoke
+pnpm run generate
+pnpm run build
+pnpm run doctor
+pnpm run doctor:security
 ```
+
+## Documentation
+
+- [Getting Started](./docs/getting-started.md)
+- [Installation](./docs/installation.md)
+- [Project Structure](./docs/project-structure.md)
+- [RPC](./docs/rpc.md)
+- [Codegen](./docs/codegen.md)
+- [Runtime](./docs/runtime.md)
+- [VPS Deployment](./docs/vps-deployment.md)
+- [Vercel Deployment](./docs/vercel-deployment.md)
+- [Wexts Shield](./docs/wexts-shield.md)
+- [CLI](./docs/cli.md)
+- [Error Codes](./docs/error-codes.md)
+- [Troubleshooting](./docs/troubleshooting.md)
+- [Known Limitations](./docs/known-limitations.md)
+- [Migration Guide](./docs/migration-guide.md)
+- [Semver Policy](./docs/semver-policy.md)
 
 ## RPC
 

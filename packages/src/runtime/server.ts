@@ -4,6 +4,7 @@ import Fastify, { FastifyInstance, FastifyServerOptions } from 'fastify';
 import { registerWextsShield, type WextsShieldConfig, type WextsShieldRoutePolicy } from '@wexts/security';
 import type { RpcManifest } from '../rpc/types';
 import { registerRpcRoutes, type RpcServiceInstances } from './rpc-router';
+import { WextsRuntimeError } from '../errors';
 
 export interface WextsRuntimeConfig {
     rootDir?: string;
@@ -134,7 +135,12 @@ async function mountNext(fastify: FastifyInstance, rootDir: string, config: Wext
     const nextModule = await import('next') as unknown as { default?: (options: unknown) => { prepare: () => Promise<void>; getRequestHandler: () => (req: unknown, res: unknown) => Promise<void> } };
     const next = nextModule.default;
     if (!next) {
-        throw new Error('Next.js could not be loaded. Install next or omit nextDir.');
+        throw new WextsRuntimeError({
+            code: 'WEXTS_RUNTIME_NEXT_MISSING',
+            message: 'Next.js could not be loaded. Install next or omit nextDir.',
+            suggestedFix: 'Install `next` in the application or remove `nextDir` from wexts.runtime.js.',
+            docsSlug: 'runtime',
+        });
     }
     const nextApp = next({
         dev: config.dev ?? process.env.NODE_ENV !== 'production',

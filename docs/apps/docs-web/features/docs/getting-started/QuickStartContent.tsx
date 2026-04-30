@@ -9,129 +9,72 @@ export function QuickStartContent() {
                 <Badge className="mb-4">Quick Start</Badge>
                 <h1 id="quick-start">Quick Start Guide</h1>
                 <p className="text-xl text-muted-foreground">
-                    Build your first wexts application in under 5 minutes.
+                    Create the verified Wexts 4 starter and run the same path used by release checks.
                 </p>
             </div>
 
-            <h2 id="create-project">1. Create New Project</h2>
+            <h2 id="create-project">1. Create a project</h2>
             <CodeBlock language="bash">
-                {`npx create-wexts-app my-blog-app
-cd my-blog-app
+                {`npx wexts create my-app
+cd my-app
 pnpm install`}
             </CodeBlock>
 
-            <h2 id="start-servers">2. Start Development Servers</h2>
+            <h2 id="start-dev">2. Start development</h2>
             <CodeBlock language="bash">
-                {`pnpm dev`}
+                {`pnpm run dev`}
             </CodeBlock>
 
-            <Callout type="success">
-                ✅ Frontend: <code>http://localhost:3000</code><br />
-                ✅ Backend: <code>http://localhost:5050</code>
+            <Callout type="info" title="Development mode">
+                Development starts separate web and API processes for fast iteration.
+                The single-port runtime is the production <code>wexts start</code> path.
             </Callout>
 
-            <h2 id="create-first-model">3. Create Your First Model</h2>
-            <p>
-                Edit <code>apps/api/prisma/schema.prisma</code>:
-            </p>
-
-            <CodeBlock language="prisma" filename="schema.prisma" showLineNumbers>
-                {`model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String
-  published Boolean  @default(false)
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}`}
-            </CodeBlock>
-
-            <h2 id="migrate-database">4. Run Migration</h2>
+            <h2 id="generate-build-check">3. Verify the app</h2>
             <CodeBlock language="bash">
-                {`cd apps/api
-npx prisma migrate dev --name add_posts`}
+                {`pnpm run generate
+pnpm run build
+pnpm run doctor
+pnpm run doctor:security`}
             </CodeBlock>
 
-            <h2 id="create-service">5. Generate Service</h2>
-            <CodeBlock language="bash">
-                {`npx wexts generate service posts`}
-            </CodeBlock>
-
-            <h2 id="implement-logic">6. Implement Business Logic</h2>
-            <CodeBlock language="typescript" filename="apps/api/src/posts/posts.service.ts" showLineNumbers>
+            <h2 id="rpc-example">4. RPC example</h2>
+            <CodeBlock language="typescript" filename="apps/api/src/hello.service.ts" showLineNumbers>
                 {`import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { RpcMethod, RpcService } from 'wexts/nest';
 
 @Injectable()
-export class PostsService {
-  constructor(private prisma: PrismaService) {}
-
-  async create(title: string, content: string) {
-    return this.prisma.post.create({
-      data: { title, content, authorId: 'user-1' },
-    });
-  }
-
-  async findAll() {
-    return this.prisma.post.findMany({
-      where: { published: true },
-      orderBy: { createdAt: 'desc' },
-    });
+@RpcService({ name: 'hello', requireAuth: false })
+export class HelloService {
+  @RpcMethod()
+  async sayHello(name: string): Promise<string> {
+    return \`Hello, \${name}!\`;
   }
 }`}
             </CodeBlock>
 
-            <h2 id="use-frontend">7. Use in Frontend</h2>
             <CodeBlock language="typescript" filename="apps/web/app/page.tsx" showLineNumbers>
                 {`'use client';
 
-import { useEffect, useState } from 'react';
-import { useWexts } from '@/lib/wexts-client';
+import { useWexts } from '@/lib/wexts-provider';
 
-export default function Home() {
-  const [posts, setPosts] = useState([]);
+export default function Page() {
   const wexts = useWexts();
 
-  useEffect(() => {
-    loadPosts();
-  }, []);
+  async function run() {
+    await wexts.hello.sayHello('Bob');
+  }
 
-  const loadPosts = async () => {
-    const data = await wexts.posts.findAll();
-    setPosts(data);
-  };
-
-  const createPost = async () => {
-    await wexts.posts.create('My First Post', 'Hello wexts!');
-    loadPosts();
-  };
-
-  return (
-    <div className="p-8">
-      <button onClick={createPost} className="btn">
-        Create Post
-      </button>
-      {posts.map(post => (
-        <div key={post.id} className="mt-4">
-          <h2>{post.title}</h2>
-          <p>{post.content}</p>
-        </div>
-      ))}
-    </div>
-  );
+  return <button onClick={run}>Say hello</button>;
 }`}
             </CodeBlock>
 
-            <Callout type="success" title="🎉 Congratulations!">
-                You've just built a full-stack application with wexts! Notice how you didn't write any API routes or fetch logic – it's all handled automatically by wexts RPC.
-            </Callout>
-
             <h2 id="next-steps">Next Steps</h2>
             <ul>
-                <li><a href="/docs/features">Explore all features</a></li>
-                <li><a href="/docs/examples">View more examples</a></li>
-                <li><a href="/docs/api">Read API documentation</a></li>
+                <li><a href="/docs/rpc">Read the RPC guide</a></li>
+                <li><a href="/docs/runtime">Understand the production runtime</a></li>
+                <li><a href="/docs/wexts-shield">Configure Wexts Shield</a></li>
+                <li><a href="/docs/vercel-deployment">Deploy with Vercel Build Output</a></li>
             </ul>
         </article>
     );

@@ -9,6 +9,8 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
 
@@ -42,6 +44,9 @@ jobs:
       - name: Example build
         run: pnpm --filter wexts-example-hello-rpc build
 
+      - name: Example vercel-build
+        run: pnpm --filter wexts-example-hello-rpc vercel-build
+
       - name: Doctor
         run: pnpm --filter wexts-example-hello-rpc run doctor
 
@@ -60,3 +65,6 @@ jobs:
             sleep 1
           done
           WEXTS_SMOKE_URL=http://127.0.0.1:3210 pnpm --filter wexts-example-hello-rpc smoke
+
+      - name: Release artifact check
+        run: pnpm release:artifact-check

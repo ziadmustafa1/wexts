@@ -8,7 +8,7 @@ Use `examples/hello-rpc` for the canonical generated-RPC path.
 
 # Fusion NestJS API
 
-Complete NestJS 10 backend with authentication, Prisma ORM, and CRUD operations.
+Deprecated compatibility backend template. The verified Wexts 4 starter uses NestJS 11, generated RPC, and no required Prisma/Auth/Todos stack.
 
 ## Features
 

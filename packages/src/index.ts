@@ -7,6 +7,7 @@ export * as DevServer from './dev-server';
 export * as Nest from './nest';
 export * as Next from './next';
 export * as Rpc from './rpc';
+export * from './errors';
 
 // Client and Types are exported via subpaths in package.json
 export * from './types';

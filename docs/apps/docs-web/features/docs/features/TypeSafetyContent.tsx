@@ -8,20 +8,21 @@ export function TypeSafetyContent() {
             <Badge className="mb-4">Type Safety</Badge>
             <h1 id="type-safety">End-to-End Type Safety</h1>
             <p className="text-xl text-muted-foreground">
-                TypeScript everywhere. From your database schema to your UI components.
+                TypeScript across explicit RPC service signatures, generated client types, and frontend calls.
             </p>
 
             <CodeBlock language="typescript" showLineNumbers>
-                {`// 1. Define your Prisma schema
-model User {
-  id    String @id @default(cuid())
-  email String @unique
-  name  String?
-}
+                {`// 1. Define backend service return types
+type User = {
+  id: string;
+  email: string;
+  name?: string;
+};
 
-// 2. Use in backend
+// 2. Expose explicit RPC methods
+@RpcMethod()
 async createUser(dto: CreateUserDto): Promise<User> {
-  return this.db.user.create({ data: dto });
+  return this.users.create(dto);
 }
 
 // 3. Call from frontend with full type safety

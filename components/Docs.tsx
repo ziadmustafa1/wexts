@@ -23,8 +23,8 @@ const Docs: React.FC = () => {
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold text-zinc-900 dark:text-white">wexts Framework Specification</h1>
           <p className="text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-            The definitive guide to the unified <strong>Next.js 16</strong> + <strong>NestJS 10</strong> monorepo architecture.
-            Combining backend power with frontend speed.
+            The current guide to the Wexts 4 <strong>Next.js 16</strong> + <strong>NestJS 11</strong> architecture.
+            Generated RPC, one production runtime, and explicit security checks.
           </p>
         </div>
 
@@ -37,8 +37,8 @@ const Docs: React.FC = () => {
             <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Automatic Backend Linking</h3>
             <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">
               No more <code className="bg-zinc-100 dark:bg-black/40 px-1 rounded">fetch('/api/users')</code>.
-              wexts parses your NestJS controllers and generates a type-safe SDK.
-              Frontend calls <code className="text-violet-700 dark:text-violet-300">api.users.findAll()</code> directly from Server Actions or Client Components.
+              Wexts generates a typed client from explicit <code className="bg-zinc-100 dark:bg-black/40 px-1 rounded">@RpcService()</code> and <code className="bg-zinc-100 dark:bg-black/40 px-1 rounded">@RpcMethod()</code> metadata.
+              Frontend calls use the generated client through <code className="text-violet-700 dark:text-violet-300">useWexts()</code>.
             </p>
           </div>
           <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 shadow-sm dark:shadow-none">
@@ -57,7 +57,7 @@ const Docs: React.FC = () => {
         <section className="space-y-6">
           <h2 className="text-2xl font-bold text-zinc-900 dark:text-white border-l-4 border-violet-600 dark:border-violet-500 pl-4">Monorepo Structure</h2>
           <p className="text-zinc-600 dark:text-zinc-400 text-sm">
-            Optimized for TurboRepo. Uses <strong>React 19 (RC)</strong> and <strong>NestJS 10</strong> by default.
+            Optimized for the verified starter. Uses <strong>React 19</strong> and <strong>NestJS 11</strong> by default.
           </p>
           <div className="bg-zinc-50 dark:bg-[#0e0e11] p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-x-auto">
             <pre className="text-sm font-mono text-zinc-700 dark:text-zinc-300 leading-relaxed">{FUSION_FILE_TREE}</pre>
@@ -67,11 +67,11 @@ const Docs: React.FC = () => {
         {/* SDK Boilerplate Section - NEW */}
         <section className="space-y-6">
           <h2 className="text-2xl font-bold text-zinc-900 dark:text-white border-l-4 border-violet-600 dark:border-violet-500 pl-4 flex items-center gap-3">
-            SDK Publishing Guide
+            Generated Client Guide
             <span className="text-xs font-normal bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300 px-2 py-1 rounded-full border border-violet-200 dark:border-violet-500/30">For Package Authors</span>
           </h2>
           <p className="text-zinc-600 dark:text-zinc-400">
-            To publish <code className="text-violet-600 dark:text-violet-400">@wexts/sdk</code> to npm, use the following boilerplate for the <code className="text-zinc-800 dark:text-zinc-200">packages/api-client</code> directory.
+            Wexts generates the client into your application. Do not publish a separate SDK unless you intentionally own that package.
           </p>
 
           <div className="grid grid-cols-1 gap-6">

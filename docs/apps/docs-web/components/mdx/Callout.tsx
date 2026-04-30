@@ -10,27 +10,27 @@ interface CalloutProps {
 const types = {
     info: {
         icon: Info,
-        className: 'border-blue-500/50 bg-blue-50 dark:bg-blue-950/20',
-        iconClassName: 'text-blue-500',
-        titleClassName: 'text-blue-900 dark:text-blue-100',
+        className: 'border-sky-300/20 bg-sky-300/[0.06]',
+        iconClassName: 'text-sky-200',
+        titleClassName: 'text-sky-100',
     },
     warning: {
         icon: AlertTriangle,
-        className: 'border-yellow-500/50 bg-yellow-50 dark:bg-yellow-950/20',
-        iconClassName: 'text-yellow-600',
-        titleClassName: 'text-yellow-900 dark:text-yellow-100',
+        className: 'border-amber-300/25 bg-amber-300/[0.07]',
+        iconClassName: 'text-amber-200',
+        titleClassName: 'text-amber-100',
     },
     success: {
         icon: CheckCircle2,
-        className: 'border-green-500/50 bg-green-50 dark:bg-green-950/20',
-        iconClassName: 'text-green-600',
-        titleClassName: 'text-green-900 dark:text-green-100',
+        className: 'border-emerald-300/20 bg-emerald-300/[0.06]',
+        iconClassName: 'text-emerald-200',
+        titleClassName: 'text-emerald-100',
     },
     error: {
         icon: AlertCircle,
-        className: 'border-red-500/50 bg-red-50 dark:bg-red-950/20',
-        iconClassName: 'text-red-600',
-        titleClassName: 'text-red-900 dark:text-red-100',
+        className: 'border-red-300/20 bg-red-300/[0.06]',
+        iconClassName: 'text-red-200',
+        titleClassName: 'text-red-100',
     },
 };
 
@@ -39,21 +39,18 @@ export function Callout({ type = 'info', title, children }: CalloutProps) {
     const Icon = config.icon;
 
     return (
-        <div className={`my-4 rounded-lg border-l-4 p-4 ${config.className} shadow-sm`}>
+        <div className={`my-6 rounded-2xl border p-4 ${config.className}`}>
             <div className="flex gap-3">
-                {/* Icon */}
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0 pt-0.5">
                     <Icon className={`h-5 w-5 ${config.iconClassName}`} />
                 </div>
-
-                {/* Content */}
-                <div className="flex-1 space-y-1">
+                <div className="min-w-0 flex-1 space-y-1">
                     {title && (
                         <h4 className={`font-semibold text-sm leading-tight ${config.titleClassName}`}>
                             {title}
                         </h4>
                     )}
-                    <div className="text-sm leading-relaxed text-muted-foreground">
+                    <div className="text-sm leading-relaxed text-slate-300">
                         {children}
                     </div>
                 </div>

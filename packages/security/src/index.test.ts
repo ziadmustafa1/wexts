@@ -1,6 +1,6 @@
 import Fastify from 'fastify';
 import { describe, expect, it, vi } from 'vitest';
-import { registerWextsShield, redactObject, validateWextsShieldConfig } from './index';
+import { registerWextsShield, redactObject, validateWextsShieldConfig, WextsSecurityError } from './index';
 
 describe('Wexts Shield', () => {
   it('blocks abuse with in-memory rate limits', async () => {
@@ -102,5 +102,17 @@ describe('Wexts Shield', () => {
         increment: () => ({ count: 1, resetAt: Date.now() + 1000 }),
       },
     })).toEqual([]);
+  });
+
+  it('exports a formal WextsSecurityError with code and suggested fix', () => {
+    const error = new WextsSecurityError('Blocked', 403, 'WEXTS_SECURITY_BLOCKED', {
+      suggestedFix: 'Update the route policy.',
+      docsSlug: 'wexts-shield',
+    });
+
+    expect(error).toBeInstanceOf(Error);
+    expect(error.code).toBe('WEXTS_SECURITY_BLOCKED');
+    expect(error.suggestedFix).toBe('Update the route policy.');
+    expect(error.docsSlug).toBe('wexts-shield');
   });
 });

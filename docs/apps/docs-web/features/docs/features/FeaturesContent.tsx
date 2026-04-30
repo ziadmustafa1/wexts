@@ -78,7 +78,7 @@ export class UsersService {
                         <Database className="text-blue-500 mb-2" size={24} />
                         <CardTitle className="text-lg">Database Manager</CardTitle>
                         <CardDescription>
-                            Browse and edit your Prisma models directly from the GUI. Perfect for development.
+                            Database tooling is application-owned. Prisma can be used by an app, but it is not a Wexts core requirement.
                         </CardDescription>
                     </CardHeader>
                 </Card>

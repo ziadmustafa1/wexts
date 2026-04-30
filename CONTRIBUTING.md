@@ -1,160 +1,56 @@
-# Contributing to WEXTS
+# Contributing
 
-First off, thank you for considering contributing to WEXTS! 🎉
+Wexts is a production-focused Next.js + NestJS toolkit. Contributions should preserve the verified `examples/hello-rpc` path and avoid broad rewrites.
 
-## 🌟 Ways to Contribute
-
-- 🐛 Report bugs
-- 💡 Suggest new features
-- 📝 Improve documentation
-- 🔧 Submit pull requests
-- ⭐ Star the project
-
-## 🚀 Development Setup
+## Setup
 
 ```bash
-# Clone the repository
 git clone https://github.com/ziadmustafa1/wexts.git
 cd wexts
-
-# Install dependencies
 pnpm install
-
-# Start demo project
-cd demo
-pnpm run dev
 ```
 
-## 📋 Project Structure
-
-```
-wexts/
-├── packages/           # Main WEXTS package
-│   ├── src/           # Source code
-│   └── templates/     # Project templates
-├── demo/              # Example application
-└── docs/              # Documentation
-```
-
-## 🔨 Development Workflow
-
-1. **Fork the repository**
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-
-3. **Make your changes**
-   - Write clean, documented code
-   - Follow existing code style
-   - Add tests if applicable
-
-4. **Test your changes**
-   ```bash
-   pnpm run test
-   pnpm run build
-   ```
-
-5. **Commit with conventional commits**
-   ```bash
-   git commit -m "feat: add amazing feature"
-   ```
-
-   Types:
-   - `feat:` - New feature
-   - `fix:` - Bug fix
-   - `docs:` - Documentation
-   - `style:` - Code style
-   - `refactor:` - Code refactoring
-   - `test:` - Tests
-   - `chore:` - Maintenance
-
-6. **Push and create PR**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-
-## 📝 Code Guidelines
-
-### TypeScript
-- Use TypeScript for all code
-- Enable strict mode
-- Add JSDoc comments for public APIs
-
-### Naming Conventions
-- Use `camelCase` for variables and functions
-- Use `PascalCase` for classes and types
-- Use `kebab-case` for file names
-
-### Code Style
-- Use Prettier for formatting
-- Follow ESLint rules
-- Keep functions small and focused
-
-## 🧪 Testing
+## Required Checks
 
 ```bash
-# Run tests
+pnpm typecheck
 pnpm test
-
-# Watch mode
-pnpm test:watch
-
-# Coverage
-pnpm test:coverage
+pnpm lint
+pnpm build
+pnpm --filter wexts-example-hello-rpc generate
+pnpm --filter wexts-example-hello-rpc build
+pnpm --filter wexts-example-hello-rpc vercel-build
+pnpm release:artifact-check
+pnpm audit
 ```
 
-## 📚 Documentation
+## Architecture Rules
 
-- Update README.md if needed
-- Add JSDoc comments
-- Update CHANGELOG.md
-- Add examples if applicable
+- Do not add runtime source scanning.
+- Do not run codegen during production start.
+- Do not weaken Wexts Shield defaults.
+- Keep CLI/codegen dependencies out of runtime paths when practical.
+- Keep `@wexts/security` as a real semver dependency in published packages.
+- Do not present legacy `demo/` or templates as the recommended production path.
 
-## 🐛 Reporting Bugs
+## Pull Request Checklist
 
-**Before submitting:**
-1. Check existing issues
-2. Use latest version
-3. Provide minimal reproduction
+- Tests added or updated for behavior changes.
+- Docs updated for user-facing changes.
+- Error codes added for new failure modes.
+- Changeset added for published package changes.
+- Breaking changes documented in `MIGRATION.md`.
 
-**Include:**
-- WEXTS version
-- Node.js version
-- Operating system
-- Steps to reproduce
-- Expected vs actual behavior
-- Error messages/screenshots
+## Commit Style
 
-## 💡 Feature Requests
+Use focused commits with clear prefixes:
 
-- Explain the use case
-- Describe desired behavior
-- Provide examples if possible
-- Consider implementation difficulty
+- `fix:`
+- `feat:`
+- `docs:`
+- `test:`
+- `chore:`
 
-## ✅ Pull Request Checklist
+## Security
 
-- [ ] Code follows style guidelines
-- [ ] Tests pass locally
-- [ ] Added/updated tests
-- [ ] Updated documentation
-- [ ] No breaking changes (or documented)
-- [ ] Commits follow conventional format
-
-## 🤝 Code of Conduct
-
-- Be respectful and inclusive
-- Welcome newcomers
-- Give constructive feedback
-- Focus on what's best for the community
-
-## 📄 License
-
-By contributing, you agree that your contributions will be licensed under the MIT License.
-
----
-
-**Questions?** Open an issue or discussion!
-
-Thank you for contributing! 🙏
+Report sensitive issues privately. See `SECURITY.md`.

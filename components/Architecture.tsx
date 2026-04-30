@@ -7,8 +7,8 @@ const Architecture: React.FC = () => {
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">The Fusion Monorepo Architecture</h2>
         <p className="text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-            A unified workspace optimized for <strong>Next.js 16</strong> and <strong>NestJS 10</strong>. 
-            Type safety flows from the PostgreSQL database all the way to the React DOM.
+            A Wexts 4 workspace optimized for <strong>Next.js 16</strong> and <strong>NestJS 11</strong>.
+            Generated RPC provides an explicit typed boundary between backend services and frontend calls.
         </p>
       </div>
 
@@ -47,7 +47,7 @@ const Architecture: React.FC = () => {
                     </div>
                     <div>
                     <h3 className="text-lg font-bold text-zinc-900 dark:text-white">apps/api</h3>
-                    <p className="text-xs text-zinc-500">NestJS 10 (Node.js)</p>
+                    <p className="text-xs text-zinc-500">NestJS 11 (Node.js)</p>
                     </div>
                 </div>
                 <div className="pl-16 text-xs text-zinc-500 font-mono">

@@ -2,128 +2,106 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronRight, BookOpen, Zap, Code, Box, Settings } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
 
 type NavItem = {
     title: string;
     href: string;
-    icon?: any;
-    items?: NavItem[];
+    items: { title: string; href: string }[];
 };
 
 const navigation: NavItem[] = [
     {
-        title: 'Getting Started',
+        title: 'Start',
         href: '/docs/getting-started',
-        icon: Zap,
         items: [
-            { title: 'Introduction', href: '/docs/getting-started' },
-            { title: 'Installation', href: '/docs/getting-started/installation' },
-            { title: 'Quick Start', href: '/docs/getting-started/quick-start' },
+            { title: 'Getting Started', href: '/docs/getting-started' },
+            { title: 'Installation', href: '/docs/installation' },
+            { title: 'Project Structure', href: '/docs/project-structure' },
         ],
     },
     {
-        title: 'Features',
-        href: '/docs/features',
-        icon: Box,
+        title: 'Core',
+        href: '/docs/rpc',
         items: [
-            { title: 'Overview', href: '/docs/features' },
-            { title: 'RPC Auto-Linking', href: '/docs/features/rpc' },
-            { title: 'Fusion Insight', href: '/docs/features/insight' },
-            { title: 'Type Safety', href: '/docs/features/type-safety' },
+            { title: 'RPC', href: '/docs/rpc' },
+            { title: 'Codegen', href: '/docs/codegen' },
+            { title: 'Runtime', href: '/docs/runtime' },
+            { title: 'CLI', href: '/docs/cli' },
+            { title: 'Error Codes', href: '/docs/error-codes' },
         ],
     },
     {
-        title: 'API Reference',
-        href: '/docs/api',
-        icon: Code,
+        title: 'Operate',
+        href: '/docs/vps-deployment',
         items: [
-            { title: 'Overview', href: '/docs/api' },
-            { title: 'CLI Commands', href: '/docs/api/cli' },
-            { title: 'Configuration', href: '/docs/api/config' },
+            { title: 'VPS Deployment', href: '/docs/vps-deployment' },
+            { title: 'Vercel Deployment', href: '/docs/vercel-deployment' },
+            { title: 'Wexts Shield', href: '/docs/wexts-shield' },
+            { title: 'Troubleshooting', href: '/docs/troubleshooting' },
+            { title: 'Known Limitations', href: '/docs/known-limitations' },
         ],
     },
     {
-        title: 'Examples',
-        href: '/docs/examples',
-        icon: BookOpen,
+        title: 'Project',
+        href: '/docs/migration-guide',
         items: [
-            { title: 'Basic Usage', href: '/docs/examples' },
-            { title: 'Authentication', href: '/docs/examples/auth' },
-            { title: 'Real-time Features', href: '/docs/examples/realtime' },
+            { title: 'Migration Guide', href: '/docs/migration-guide' },
+            { title: 'Semver Policy', href: '/docs/semver-policy' },
         ],
     },
 ];
 
 export function Sidebar() {
     const pathname = usePathname();
-    const [openSections, setOpenSections] = useState<string[]>(['Getting Started', 'Features']);
-
-    const toggleSection = (title: string) => {
-        setOpenSections((prev) =>
-            prev.includes(title)
-                ? prev.filter((t) => t !== title)
-                : [...prev, title]
-        );
-    };
 
     return (
-        <aside className="w-64 border-r border-border bg-background/50 backdrop-blur-sm">
-            <div className="sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto py-6 px-4">
-                <nav className="space-y-2">
-                    {navigation.map((section) => {
-                        const isOpen = openSections.includes(section.title);
-                        const Icon = section.icon;
-
-                        return (
-                            <div key={section.title}>
-                                <button
-                                    onClick={() => toggleSection(section.title)}
-                                    className={cn(
-                                        "w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-all",
-                                        "hover:bg-accent hover:text-accent-foreground",
-                                        pathname === section.href && "bg-primary/10 text-primary"
-                                    )}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        {Icon && <Icon size={16} />}
-                                        <span>{section.title}</span>
-                                    </div>
-                                    <ChevronRight
-                                        size={16}
-                                        className={cn(
-                                            "transition-transform duration-200",
-                                            isOpen && "rotate-90"
-                                        )}
-                                    />
-                                </button>
-
-                                {isOpen && section.items && (
-                                    <div className="ml-4 mt-1 space-y-1 border-l border-border pl-2">
-                                        {section.items.map((item) => (
-                                            <Link
-                                                key={item.href}
-                                                href={item.href}
-                                                className={cn(
-                                                    "block px-3 py-1.5 rounded-md text-sm transition-all",
-                                                    "hover:bg-accent hover:text-accent-foreground",
-                                                    pathname === item.href
-                                                        ? "bg-primary/10 text-primary font-medium border-l-2 border-primary"
-                                                        : "text-muted-foreground"
-                                                )}
-                                            >
-                                                {item.title}
-                                            </Link>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })}
-                </nav>
+        <>
+            <div className="sticky top-16 z-30 border-b border-slate-900 bg-[#080a0f]/95 px-4 py-3 backdrop-blur lg:hidden">
+                <details className="group rounded-2xl border border-slate-800 bg-slate-950">
+                    <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium text-slate-100">
+                        Docs navigation
+                        <ChevronDown className="h-4 w-4 transition group-open:rotate-180" />
+                    </summary>
+                    <div className="grid gap-4 border-t border-slate-800 p-4">
+                        {navigation.map((section) => (
+                            <NavSection key={section.title} section={section} pathname={pathname} />
+                        ))}
+                    </div>
+                </details>
             </div>
-        </aside>
+            <aside className="hidden w-72 shrink-0 border-r border-slate-900 bg-[#080a0f] lg:block">
+                <div className="sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto px-5 py-8">
+                    <nav className="space-y-7" aria-label="Docs navigation">
+                        {navigation.map((section) => (
+                            <NavSection key={section.title} section={section} pathname={pathname} />
+                        ))}
+                    </nav>
+                </div>
+            </aside>
+        </>
+    );
+}
+
+function NavSection({ section, pathname }: { section: NavItem; pathname: string | null }) {
+    return (
+        <div>
+            <p className="mb-2 font-mono text-[0.68rem] uppercase tracking-[0.24em] text-slate-600">{section.title}</p>
+            <div className="grid gap-1">
+                {section.items.map((item) => (
+                    <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                            'rounded-xl px-3 py-2 text-sm leading-6 text-slate-400 transition hover:bg-slate-900 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300',
+                            pathname === item.href && 'bg-amber-300/[0.08] text-amber-100'
+                        )}
+                    >
+                        {item.title}
+                    </Link>
+                ))}
+            </div>
+        </div>
     );
 }

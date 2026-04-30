@@ -18,17 +18,17 @@ export function CLIContent() {
                 <Card className="border-l-4 border-l-violet-500 hover:shadow-lg transition-shadow">
                     <CardHeader>
                         <Terminal className="w-10 h-10 text-violet-500 mb-3" />
-                        <CardTitle>create-wexts-app</CardTitle>
-                        <CardDescription>Create a new wexts project</CardDescription>
+                        <CardTitle>wexts create</CardTitle>
+                        <CardDescription>Create the verified Wexts starter</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <CodeBlock language="bash">
-                            {`npx wexts my-app
+                            {`npx wexts create my-app
 
 # Options:
---template <name>   # Use specific template
---skip-install      # Skip dependencies
---use-npm          # Use npm instead of pnpm`}
+--template starter  # Verified default starter
+--template legacy   # Deprecated compatibility template
+--skip-install      # Skip dependency install`}
                         </CodeBlock>
                     </CardContent>
                 </Card>
@@ -41,14 +41,18 @@ export function CLIContent() {
                     </CardHeader>
                     <CardContent>
                         <CodeBlock language="bash">
-                            {`# Generate service
+                            {`# Generate RPC client and manifest
+npx wexts generate
+
+# Scaffold an RPC service
+npx wexts generate rpc <name>
+
+# Scaffold supporting files
 npx wexts generate service <name>
-
-# Generate controller
-npx wexts generate controller <name>
-
-# Generate resource (all)
-npx wexts generate resource <name>`}
+npx wexts generate module <name>
+npx wexts generate entity <name>
+npx wexts generate guard <name>
+npx wexts generate config`}
                         </CodeBlock>
                     </CardContent>
                 </Card>
@@ -61,11 +65,10 @@ npx wexts generate resource <name>`}
                     </CardHeader>
                     <CardContent>
                         <CodeBlock language="bash">
-                            {`pnpm dev
+                            {`pnpm run dev
 
-# Starts both:
-# - Frontend: http://localhost:3000
-# - Backend: http://localhost:5050`}
+# Development uses separate web/API processes.
+# Production single-port serving uses wexts start.`}
                         </CodeBlock>
                     </CardContent>
                 </Card>
@@ -78,10 +81,9 @@ npx wexts generate resource <name>`}
                     </CardHeader>
                     <CardContent>
                         <CodeBlock language="bash">
-                            {`pnpm build
+                            {`pnpm run build
 
-# Outputs optimized builds
-# for both frontend and backend`}
+# Generates RPC, compiles API, and builds Next.js.`}
                         </CodeBlock>
                     </CardContent>
                 </Card>
@@ -92,26 +94,25 @@ npx wexts generate resource <name>`}
             <div className="space-y-4">
                 <div className="p-4 rounded-lg bg-muted/50 border border-border">
                     <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                        <span className="text-primary">→</span> Database Migrations
+                        <span className="text-primary">→</span> Production Runtime
                     </h3>
                     <CodeBlock language="bash">
-                        {`# Create migration
-cd apps/api
-npx prisma migrate dev --name <migration-name>
+                        {`pnpm run start
 
-# Apply migrations
-npx prisma migrate deploy`}
+# Equivalent:
+wexts start -c ./wexts.runtime.js`}
                     </CodeBlock>
                 </div>
 
                 <div className="p-4 rounded-lg bg-muted/50 border border-border">
                     <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                        <span className="text-primary">→</span> Prisma Studio
+                        <span className="text-primary">→</span> Vercel Build Output
                     </h3>
                     <CodeBlock language="bash">
-                        {`# Open database GUI
-cd apps/api
-npx prisma studio`}
+                        {`pnpm run vercel-build
+
+# Equivalent:
+wexts vercel-build -p apps/api -o apps/web/lib/wexts -c ./wexts.runtime.js`}
                     </CodeBlock>
                 </div>
             </div>

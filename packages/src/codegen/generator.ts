@@ -2,6 +2,7 @@ import { filesystem } from '../core/filesystem';
 import * as path from 'path';
 import type { RpcManifest, RpcMethodManifest, RpcServiceManifest } from '../rpc/types';
 import { NestJSParser } from './parser';
+import { WextsCodegenError } from '../errors';
 
 export interface GenerateOptions {
     outputPath: string;
@@ -30,7 +31,12 @@ export class ClientGenerator {
         } = options;
 
         if (manifest.services.length === 0) {
-            throw new Error('No Wexts RPC services found. Add @RpcService() to a Nest provider and @RpcMethod() to at least one method.');
+            throw new WextsCodegenError({
+                code: 'WEXTS_CODEGEN_NO_SERVICES',
+                message: 'No Wexts RPC services found. Add @RpcService() to a Nest provider and @RpcMethod() to at least one method.',
+                suggestedFix: 'Add a decorated RPC service, then run `wexts generate -p apps/api -o apps/web/lib/wexts`.',
+                docsSlug: 'codegen',
+            });
         }
 
         const sortedManifest = sortManifest(manifest);

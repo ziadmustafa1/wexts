@@ -25,7 +25,7 @@ import { defineConfig } from 'wexts';
 export default defineConfig({
   apps: {
     web: 'apps/web',   // Next.js 16 (App Router + PPR)
-    api: 'apps/api'    // NestJS 10 (Fastify)
+    api: 'apps/api'    // NestJS 11 (Fastify 5)
   },
   dev: {
     webPort: 3000,
@@ -49,7 +49,7 @@ export const FUSION_CLI_ASCII = `
  |  _|| |_| \\__ \\ | (_) | | | |   \\ |_| 
  |_|   \\__,_|___/_|\\___/|_| |_|_|\\_\\(_) 
                                         
-wexts v2.0.0-alpha - The Future of Full-Stack
+Wexts 4 - Production-focused Next.js + NestJS toolkit
 `;
 
 export const FUSION_FILE_TREE = `
@@ -57,7 +57,7 @@ wexts/
  ├── fusion.config.ts
  ├── apps/
  │    ├── web/      (Next.js 16 + React 19)
- │    └── api/      (NestJS 10)
+ │    └── api/      (NestJS 11)
  ├── packages/
  │    ├── types/    (Shared DTOs)
  │    ├── core/     (Validation/Utils)
@@ -98,17 +98,17 @@ export const MOCK_DB_DATA = [
 
 export const MOCK_REQUESTS = [
   { id: 'req_1', timestamp: '10:23:41', method: 'GET', endpoint: 'api.users.findAll()', status: 200, duration: '45ms', type: 'RPC' },
-  { id: 'req_2', timestamp: '10:23:45', method: 'POST', endpoint: 'api.todos.create()', status: 201, duration: '120ms', type: 'RPC' },
-  { id: 'req_3', timestamp: '10:24:01', method: 'GET', endpoint: 'api.posts.getOne(id)', status: 200, duration: '30ms', type: 'RPC' },
-  { id: 'req_4', timestamp: '10:24:15', method: 'GET', endpoint: '/_next/static/chunk.js', status: 200, duration: '10ms', type: 'REST' },
+  { id: 'req_2', timestamp: '10:23:45', method: 'POST', endpoint: 'api.todos.create()', status: 201, duration: '121ms', type: 'RPC' },
+  { id: 'req_3', timestamp: '10:24:01', method: 'GET', endpoint: 'api.posts.getOne(id)', status: 200, duration: '31ms', type: 'RPC' },
+  { id: 'req_4', timestamp: '10:24:15', method: 'GET', endpoint: '/_next/static/chunk.js', status: 200, duration: '11ms', type: 'REST' },
   { id: 'req_5', timestamp: '10:25:00', method: 'DELETE', endpoint: 'api.users.delete()', status: 403, duration: '15ms', type: 'RPC' },
   { id: 'req_6', timestamp: '10:25:05', method: 'POST', endpoint: 'api.auth.login()', status: 200, duration: '85ms', type: 'RPC' },
 ];
 
-// --- SDK PACKAGE BOILERPLATE ---
+// --- GENERATED CLIENT PACKAGE BOILERPLATE ---
 
 export const SDK_PACKAGE_JSON = `{
-  "name": "@wexts/sdk",
+  "name": "@acme/generated-wexts-client",
   "version": "0.0.1",
   "description": "Auto-generated API client for wexts",
   "main": "./dist/index.js",

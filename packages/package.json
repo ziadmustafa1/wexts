@@ -1,12 +1,12 @@
 {
     "name": "wexts",
-    "version": "3.0.2",
+    "version": "4.1.0",
     "description": "Production-focused single-runtime Next.js + NestJS toolkit with typed RPC.",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
     "types": "./dist/index.d.ts",
     "bin": {
-        "wexts": "./bin/wexts.cjs"
+        "wexts": "bin/wexts.cjs"
     },
     "files": [
         "dist",
@@ -83,7 +83,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/ziadmustafa1/wexts.git"
+        "url": "git+https://github.com/ziadmustafa1/wexts.git"
     },
     "homepage": "https://github.com/ziadmustafa1/wexts#readme",
     "bugs": {
@@ -104,14 +104,14 @@
         "vitest": "^4.1.5"
     },
     "dependencies": {
+        "@wexts/security": "^0.1.0",
         "chokidar": "^4.0.3",
         "commander": "^14.0.3",
         "consola": "^3.2.3",
+        "fastify": "^5.8.5",
         "http-proxy": "^1.18.1",
         "picocolors": "^1.1.1",
         "reflect-metadata": "^0.2.2",
-        "fastify": "^5.8.5",
-        "@wexts/security": "^0.1.0",
         "typescript": "^5.9.3"
     },
     "peerDependencies": {

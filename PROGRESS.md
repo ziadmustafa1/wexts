@@ -7,7 +7,7 @@
 - Fixed: a reusable Fastify runtime path now exists with `/health`, `/api/health`, `/rpc`, optional Nest, optional Next, request logging, and shutdown.
 - Fixed: `@wexts/security` now exists with strict Fastify controls and tests.
 - Fixed: RPC/codegen/client/runtime/security regression tests were added.
-- Fixed: top-level docs now avoid broad production-ready and battle-tested claims.
+- Fixed: top-level docs now avoid broad universal readiness and field-proven claims.
 - Remaining: legacy demo/template auth clients still need consolidation before they should be treated as the official production template.
 
 ## Implementation Plan

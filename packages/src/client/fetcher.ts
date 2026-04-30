@@ -1,4 +1,5 @@
 import type { RpcManifest, RpcInvocationResponse } from '../rpc/types';
+import { WextsRpcError } from '../errors';
 
 export class FusionFetcher {
     private baseUrl: string;
@@ -25,7 +26,12 @@ export class FusionFetcher {
         });
 
         if (!response.ok) {
-            throw new Error(`Fusion API Error: ${response.status} ${response.statusText}`);
+            throw new WextsRpcError({
+                code: 'WEXTS_API_REQUEST_FAILED',
+                message: `Fusion API Error: ${response.status} ${response.statusText}`,
+                suggestedFix: 'Check the API route, server logs, and authentication headers.',
+                docsSlug: 'troubleshooting',
+            });
         }
 
         if (response.status === 204) {
@@ -55,6 +61,7 @@ export function createWextsRpcClient(
     manifest: Pick<RpcManifest, 'services'> | undefined,
     options: WextsRpcClientOptions = {}
 ): WextsRpcClient {
+    const hasManifest = Boolean(manifest);
     const services = new Set((manifest?.services ?? []).map((service) => service.name));
     const methodMap = new Map<string, Set<string>>();
 
@@ -69,7 +76,12 @@ export function createWextsRpcClient(
 
             const knownMethods = methodMap.get(serviceName);
             if (knownMethods && !knownMethods.has(methodName)) {
-                throw new Error(`Wexts RPC method not found: ${serviceName}.${methodName}`);
+                throw new WextsRpcError({
+                    code: 'WEXTS_RPC_METHOD_NOT_FOUND',
+                    message: `Wexts RPC method not found: ${serviceName}.${methodName}`,
+                    suggestedFix: 'Run `wexts generate` and verify the method is decorated with @RpcMethod().',
+                    docsSlug: 'rpc',
+                });
             }
 
             return (...args: unknown[]) => invokeRpc(serviceName, methodName, args, options);
@@ -80,8 +92,21 @@ export function createWextsRpcClient(
         get(_target, serviceName) {
             if (typeof serviceName !== 'string') return undefined;
             if (serviceName === 'then') return undefined;
-            if (services.size > 0 && !services.has(serviceName)) {
-                throw new Error(`Wexts RPC service not found: ${serviceName}`);
+            if (!hasManifest) {
+                throw new WextsRpcError({
+                    code: 'WEXTS_RPC_MANIFEST_MISSING',
+                    message: 'Wexts RPC manifest is missing.',
+                    suggestedFix: 'Run `wexts generate` and import the generated client/provider instead of creating an empty client.',
+                    docsSlug: 'codegen',
+                });
+            }
+            if (!services.has(serviceName)) {
+                throw new WextsRpcError({
+                    code: 'WEXTS_RPC_SERVICE_NOT_FOUND',
+                    message: `Wexts RPC service not found: ${serviceName}`,
+                    suggestedFix: 'Run `wexts generate` and verify the service is decorated with @RpcService().',
+                    docsSlug: 'rpc',
+                });
             }
 
             return createServiceProxy(serviceName);
@@ -108,7 +133,12 @@ async function invokeRpc(
     });
 
     if (!response.ok) {
-        throw new Error(`Wexts RPC Error: ${response.status} ${response.statusText}`);
+        throw new WextsRpcError({
+            code: 'WEXTS_RPC_REQUEST_FAILED',
+            message: `Wexts RPC Error: ${response.status} ${response.statusText}`,
+            suggestedFix: 'Check the RPC route, service policy, and server logs.',
+            docsSlug: 'troubleshooting',
+        });
     }
 
     const payload = await response.json() as RpcInvocationResponse;

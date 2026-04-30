@@ -53,7 +53,7 @@ export class ProjectScaffolder {
                 build: 'wexts build',
             },
             devDependencies: {
-                'wexts': '^3.0.2',
+                'wexts': '^4.0.0',
             },
         };
 

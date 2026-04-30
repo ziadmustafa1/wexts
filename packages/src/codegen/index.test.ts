@@ -50,7 +50,10 @@ describe('codegen', () => {
         await expect(generateRpcClient({
             projectPath: fixture,
             outputPath: path.join(fixture, 'generated'),
-        })).rejects.toThrow('No Wexts RPC services found');
+        })).rejects.toMatchObject({
+            code: 'WEXTS_CODEGEN_NO_SERVICES',
+            suggestedFix: expect.stringContaining('wexts generate'),
+        });
     });
 });
 

@@ -5,8 +5,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { spawnSync } from 'child_process';
 import { createRequire } from 'module';
-import * as pc from 'picocolors';
 import { logger } from '../core/logger';
+import { formatWextsError, WextsError } from '../errors';
 
 interface CommonOptions {
     cwd?: string;
@@ -18,12 +18,12 @@ export function createCliProgram(): Command {
     program
         .name('wexts')
         .description('Wexts - production-focused single-runtime Next.js + NestJS toolkit')
-        .version('3.0.2');
+        .version(readPackageVersion());
 
     program
         .command('create <project-name>')
-        .description('Create a compatibility project from bundled legacy templates')
-        .option('-t, --template <template>', 'Legacy template to use (monorepo|api|web)', 'monorepo')
+        .description('Create a verified Wexts starter')
+        .option('-t, --template <template>', 'Template to use (starter|legacy)', 'starter')
         .option('--skip-install', 'Skip dependency installation', false)
         .action(async (projectName: string, options: { template: string; skipInstall: boolean }) => {
             await createProject(projectName, options.template, { skipInstall: options.skipInstall });
@@ -55,8 +55,9 @@ export function createCliProgram(): Command {
         .description('Generate RPC manifest/client, or scaffold a minimal RPC service')
         .option('-p, --project <path>', 'Path to NestJS project', './apps/api')
         .option('-o, --output <path>', 'Output directory for generated RPC client', './apps/web/lib/wexts')
-        .action(async (type: string | undefined, name: string | undefined, options: { project: string; output: string }) => {
-            if (!type || type === 'rpc') {
+        .option('--force', 'Overwrite generated files if they already exist', false)
+        .action(async (type: string | undefined, name: string | undefined, options: { project: string; output: string; force: boolean }) => {
+            if (!type || (type === 'rpc' && !name)) {
                 const { generateRpcClient } = await import('../codegen/index.js');
                 const manifest = await generateRpcClient({
                     projectPath: path.resolve(options.project),
@@ -66,14 +67,20 @@ export function createCliProgram(): Command {
                 return;
             }
 
-            if (type === 'service') {
-                if (!name) throw new Error('Service name is required: wexts generate service hello');
-                await scaffoldRpcService(path.resolve(options.project), name);
-                logger.success(`Created RPC service ${name}. Run wexts generate to update the client.`);
+            if (isScaffoldGenerator(type)) {
+                const targetRoot = type === 'config' ? process.cwd() : path.resolve(options.project);
+                const changedFiles = await scaffoldGenerator({
+                    type,
+                    name,
+                    targetRoot,
+                    force: options.force,
+                });
+                for (const file of changedFiles) logger.info(`created ${path.relative(process.cwd(), file)}`);
+                logger.success(`Generated ${type}${name ? ` ${name}` : ''}.`);
                 return;
             }
 
-            throw new Error(`Unknown generator "${type}". Supported generators: rpc, service.`);
+            throw new Error(`Unknown generator "${type}". Supported generators: rpc, service, module, entity, guard, config.`);
         });
 
     program
@@ -222,45 +229,24 @@ export function runDoctor(cwd: string, security = false): DoctorResult {
     return result;
 }
 
-async function createProject(projectName: string, template: string, options: { skipInstall: boolean }): Promise<void> {
+export async function createProject(
+    projectName: string,
+    template: string,
+    options: { skipInstall: boolean; wextsDependency?: string }
+): Promise<void> {
     const projectPath = path.join(process.cwd(), projectName);
     if (fs.existsSync(projectPath)) {
         throw new Error(`Directory already exists: ${projectName}`);
     }
 
-    const templatePath = findTemplatePath();
-    if (!templatePath) {
-        throw new Error('Template directory not found in package.');
-    }
-
     fs.mkdirSync(projectPath, { recursive: true });
 
-    if (template === 'monorepo') {
-        fs.mkdirSync(path.join(projectPath, 'apps'), { recursive: true });
-        fs.cpSync(path.join(templatePath, 'nestjs-api'), path.join(projectPath, 'apps/api'), { recursive: true });
-        fs.cpSync(path.join(templatePath, 'nextjs-web'), path.join(projectPath, 'apps/web'), { recursive: true });
-        fs.writeFileSync(path.join(projectPath, 'pnpm-workspace.yaml'), "packages:\n  - 'apps/*'\n");
-        fs.writeFileSync(path.join(projectPath, 'package.json'), JSON.stringify({
-            name: projectName,
-            private: true,
-            packageManager: 'pnpm@10.22.0',
-            scripts: {
-                dev: 'wexts dev',
-                generate: 'wexts generate',
-                build: 'wexts build',
-                start: 'wexts start',
-                doctor: 'wexts doctor',
-            },
-            devDependencies: {
-                wexts: 'latest',
-            },
-        }, null, 2));
-    } else if (template === 'api') {
-        fs.cpSync(path.join(templatePath, 'nestjs-api'), projectPath, { recursive: true });
-    } else if (template === 'web') {
-        fs.cpSync(path.join(templatePath, 'nextjs-web'), projectPath, { recursive: true });
+    if (template === 'starter') {
+        await createVerifiedStarter(projectPath, projectName, options.wextsDependency ?? resolveCreateWextsDependency(projectPath));
+    } else if (template === 'legacy') {
+        createLegacyProject(projectPath, projectName);
     } else {
-        throw new Error(`Unknown template "${template}".`);
+        throw new Error(`Unknown template "${template}". Supported templates: starter, legacy.`);
     }
 
     if (!options.skipInstall) {
@@ -268,23 +254,416 @@ async function createProject(projectName: string, template: string, options: { s
     }
 }
 
-async function scaffoldRpcService(apiProjectPath: string, rawName: string): Promise<void> {
-    const serviceName = toKebabCase(rawName);
-    const className = `${toPascalCase(serviceName)}Service`;
-    const dir = path.join(apiProjectPath, 'src', serviceName);
-    fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, `${serviceName}.service.ts`), `import { Injectable } from '@nestjs/common';
+async function createVerifiedStarter(projectPath: string, projectName: string, wextsDependency: string): Promise<void> {
+    const files: Record<string, string> = {
+        'pnpm-workspace.yaml': "packages:\n  - 'apps/*'\n",
+        'package.json': JSON.stringify({
+            name: projectName,
+            version: '0.1.0',
+            private: true,
+            packageManager: 'pnpm@10.22.0',
+            scripts: {
+                dev: 'wexts dev',
+                generate: 'wexts generate -p apps/api -o apps/web/lib/wexts',
+                build: 'pnpm run generate && tsc -p apps/api/tsconfig.json && next build apps/web',
+                start: 'wexts start -c ./wexts.runtime.js',
+                'vercel-build': 'wexts vercel-build -p apps/api -o apps/web/lib/wexts -c ./wexts.runtime.js',
+                doctor: 'wexts doctor',
+                'doctor:security': 'wexts doctor --security',
+            },
+            dependencies: {
+                '@nestjs/common': '^11.1.19',
+                '@nestjs/core': '^11.1.19',
+                '@nestjs/platform-fastify': '^11.1.19',
+                next: '16.2.4',
+                react: '^19.2.5',
+                'react-dom': '^19.2.5',
+                'reflect-metadata': '^0.2.2',
+                rxjs: '^7.8.1',
+                wexts: wextsDependency,
+            },
+            devDependencies: {
+                '@types/node': '^22.19.1',
+                '@types/react': '^19.2.14',
+                '@types/react-dom': '^19.2.3',
+                typescript: '^5.9.3',
+            },
+        }, null, 2),
+        'apps/api/package.json': JSON.stringify({
+            name: `${projectName}-api`,
+            private: true,
+            scripts: {
+                'start:dev': 'tsc -w -p tsconfig.json',
+            },
+        }, null, 2),
+        'apps/api/tsconfig.json': JSON.stringify({
+            compilerOptions: {
+                target: 'ES2023',
+                module: 'NodeNext',
+                moduleResolution: 'NodeNext',
+                experimentalDecorators: true,
+                emitDecoratorMetadata: true,
+                strict: true,
+                esModuleInterop: true,
+                skipLibCheck: true,
+                outDir: 'dist',
+                rootDir: 'src',
+            },
+            include: ['src/**/*.ts'],
+        }, null, 2),
+        'apps/api/src/hello.service.ts': `import { Injectable } from '@nestjs/common';
 import { RpcMethod, RpcService } from 'wexts/nest';
 
 @Injectable()
-@RpcService({ name: '${toCamelCase(serviceName)}', requireAuth: false })
-export class ${className} {
+@RpcService({ name: 'hello', requireAuth: false })
+export class HelloService {
   @RpcMethod()
   async sayHello(name: string): Promise<string> {
     return \`Hello, \${name}!\`;
   }
 }
-`);
+`,
+        'apps/web/package.json': JSON.stringify({
+            name: `${projectName}-web`,
+            private: true,
+            scripts: {
+                dev: 'next dev -p 3000',
+            },
+        }, null, 2),
+        'apps/web/tsconfig.json': JSON.stringify({
+            compilerOptions: {
+                target: 'ES2022',
+                lib: ['dom', 'dom.iterable', 'es2022'],
+                allowJs: false,
+                skipLibCheck: true,
+                strict: true,
+                noEmit: true,
+                esModuleInterop: true,
+                module: 'esnext',
+                moduleResolution: 'bundler',
+                resolveJsonModule: true,
+                isolatedModules: true,
+                jsx: 'react-jsx',
+                incremental: true,
+                plugins: [{ name: 'next' }],
+            },
+            include: ['next-env.d.ts', '**/*.ts', '**/*.tsx', '.next/types/**/*.ts', '.next/dev/types/**/*.ts'],
+            exclude: ['node_modules'],
+        }, null, 2),
+        'apps/web/next-env.d.ts': `/// <reference types="next" />
+/// <reference types="next/image-types/global" />
+
+// This file is generated by Next.js. Do not edit.
+`,
+        'apps/web/next.config.ts': `import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
+  output: 'standalone',
+};
+
+export default nextConfig;
+`,
+        'apps/web/app/layout.tsx': `import type { ReactNode } from 'react';
+import { WextsProvider } from '../lib/wexts-provider';
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <WextsProvider>{children}</WextsProvider>
+      </body>
+    </html>
+  );
+}
+`,
+        'apps/web/app/page.tsx': `'use client';
+
+import { useState } from 'react';
+import { useWexts } from '../lib/wexts-provider';
+
+export default function Page() {
+  const wexts = useWexts();
+  const [message, setMessage] = useState('Not called yet');
+
+  return (
+    <main>
+      <h1>Wexts Hello RPC</h1>
+      <button
+        type="button"
+        onClick={async () => {
+          setMessage(await wexts.hello.sayHello('Bob'));
+        }}
+      >
+        Call RPC
+      </button>
+      <p>{message}</p>
+    </main>
+  );
+}
+`,
+        'apps/web/lib/wexts-provider.tsx': `'use client';
+
+import { FusionProvider, useWexts as useGeneratedWexts } from 'wexts/next';
+import { createWextsClient, type WextsClient } from './wexts/client';
+
+export function WextsProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <FusionProvider rpcClient={createWextsClient({ baseUrl: '/rpc' })}>
+      {children}
+    </FusionProvider>
+  );
+}
+
+export function useWexts(): WextsClient {
+  return useGeneratedWexts<WextsClient>();
+}
+`,
+        'wexts.runtime.js': `const { HelloService } = require('./apps/api/dist/hello.service.js');
+
+module.exports = {
+  nextDir: './apps/web',
+  rpcManifestPath: './apps/web/lib/wexts/wexts.rpc.manifest.json',
+  rpcServices: {
+    hello: new HelloService(),
+  },
+  security: {
+    allowedOrigins: ['http://localhost:3000'],
+  },
+};
+`,
+        'README.md': `# ${projectName}
+
+Verified Wexts starter with a generated Hello RPC client.
+
+\`\`\`bash
+pnpm install
+pnpm run generate
+pnpm run build
+pnpm run doctor
+pnpm run doctor:security
+pnpm start
+\`\`\`
+`,
+        '.cursorrules': `# Wexts Project AI Rules
+
+You are an expert full-stack developer working on a Wexts application.
+Wexts is a unified single-runtime toolkit that combines Next.js (frontend) and NestJS (backend) using a highly typed RPC bridge.
+
+## Project Structure
+- \`apps/api/\`: The NestJS backend. Contains business logic, database models, and RPC services.
+- \`apps/web/\`: The Next.js frontend. Contains UI components, pages, and consumes the RPC client.
+- \`apps/web/lib/wexts\`: The auto-generated typed RPC client (DO NOT EDIT MANUALLY).
+
+## Backend Guidelines (NestJS)
+1. **RPC Services**: To create an API endpoint, create a NestJS provider decorated with \`@RpcService({ name: 'serviceName' })\` and methods decorated with \`@RpcMethod()\`.
+2. **Imports**: Import \`@RpcService\` and \`@RpcMethod\` from \`wexts/nest\`.
+3. Do NOT manually create REST controllers unless explicitly needed for webhooks. Use the RPC bridge for all internal frontend-backend communication.
+4. **Auth**: If a service requires authentication, set \`@RpcService({ requireAuth: true })\`.
+
+## Frontend Guidelines (Next.js)
+1. **RPC Usage**: To call the backend, import the \`api\` client from \`@/lib/wexts\` or your designated Wexts client file (e.g., \`useWexts()\`).
+2. **Syntax**: \`const data = await api.serviceName.methodName(args);\`
+3. The \`api\` object is fully type-safe. Rely on TypeScript autocomplete rather than guessing endpoints.
+
+## Development Workflow
+- When asked to add a new full-stack feature:
+  1. Add the database model (Prisma).
+  2. Create/update the NestJS RPC service in \`apps/api\`.
+  3. Remind the user to run \`wexts generate\` (or \`pnpm generate\`) so the types sync.
+  4. Build the UI in Next.js using the new \`api\` methods.
+- **Never** hardcode \`fetch('http://localhost:3000/...')\`. ALWAYS use the generated \`api\` SDK.
+`,
+    };
+
+    for (const [relativePath, content] of Object.entries(files)) {
+        const absolutePath = path.join(projectPath, relativePath);
+        fs.mkdirSync(path.dirname(absolutePath), { recursive: true });
+        fs.writeFileSync(absolutePath, content);
+    }
+
+    const { generateRpcClient } = await import('../codegen/index.js');
+    await generateRpcClient({
+        projectPath: path.join(projectPath, 'apps/api'),
+        outputPath: path.join(projectPath, 'apps/web/lib/wexts'),
+    });
+}
+
+function createLegacyProject(projectPath: string, projectName: string): void {
+    const templatePath = findTemplatePath();
+    if (!templatePath) {
+        throw new Error('Template directory not found in package.');
+    }
+
+    fs.mkdirSync(path.join(projectPath, 'apps'), { recursive: true });
+    fs.cpSync(path.join(templatePath, 'nestjs-api'), path.join(projectPath, 'apps/api'), { recursive: true });
+    fs.cpSync(path.join(templatePath, 'nextjs-web'), path.join(projectPath, 'apps/web'), { recursive: true });
+    fs.rmSync(path.join(projectPath, 'apps/web/package-lock.json'), { force: true });
+    fs.rmSync(path.join(projectPath, 'apps/api/package-lock.json'), { force: true });
+    fs.writeFileSync(path.join(projectPath, 'pnpm-workspace.yaml'), "packages:\n  - 'apps/*'\n");
+    fs.writeFileSync(path.join(projectPath, 'package.json'), JSON.stringify({
+        name: projectName,
+        private: true,
+        packageManager: 'pnpm@10.22.0',
+        scripts: {
+            dev: 'wexts dev',
+            generate: 'wexts generate',
+            build: 'wexts build',
+            start: 'wexts start',
+            doctor: 'wexts doctor',
+        },
+        devDependencies: {
+            wexts: `^${readPackageVersion()}`,
+        },
+    }, null, 2));
+}
+
+function resolveCreateWextsDependency(projectPath: string): string {
+    const packageRoot = path.resolve(__dirname, '../..');
+    const cwdLocalPackage = path.join(process.cwd(), 'node_modules/wexts');
+
+    try {
+        if (fs.existsSync(cwdLocalPackage) && fs.realpathSync(cwdLocalPackage) === fs.realpathSync(packageRoot)) {
+            return `file:${path.relative(projectPath, cwdLocalPackage)}`;
+        }
+    } catch {
+        // Fall back to semver for normal npx/npm usage.
+    }
+
+    return `^${readPackageVersion()}`;
+}
+
+type ScaffoldGeneratorType = 'rpc' | 'service' | 'module' | 'entity' | 'guard' | 'config';
+
+interface ScaffoldGeneratorOptions {
+    type: ScaffoldGeneratorType;
+    name?: string;
+    targetRoot: string;
+    force?: boolean;
+}
+
+export async function scaffoldGenerator(options: ScaffoldGeneratorOptions): Promise<string[]> {
+    if (options.type !== 'config' && !options.name) {
+        throw new WextsError({
+            code: 'WEXTS_CLI_GENERATOR_NAME_REQUIRED',
+            message: `Generator "${options.type}" requires a name.`,
+            suggestedFix: `Run \`wexts generate ${options.type} hello\` or use \`wexts generate config\`.`,
+            docsSlug: 'cli',
+        });
+    }
+
+    if (options.type === 'config') {
+        return writeGeneratedFiles(options.targetRoot, [{
+            relativePath: 'wexts.runtime.js',
+            content: `/** @type {import('wexts/runtime').WextsRuntimeConfig} */
+module.exports = {
+  rootDir: __dirname,
+  port: Number(process.env.PORT || 3000),
+  rpcManifestPath: 'apps/web/lib/wexts/wexts.rpc.manifest.json',
+  security: {
+    enabled: true,
+    production: process.env.NODE_ENV === 'production',
+    allowedOrigins: process.env.WEXTS_ALLOWED_ORIGINS?.split(',').filter(Boolean) || [],
+  },
+};
+`,
+        }], Boolean(options.force));
+    }
+
+    const rawName = options.name!;
+    const name = toKebabCase(rawName);
+    const classBase = toPascalCase(name);
+    const srcRoot = path.join(options.targetRoot, 'src');
+
+    const filesByType: Record<Exclude<ScaffoldGeneratorType, 'config'>, { relativePath: string; content: string }[]> = {
+        rpc: rpcServiceFiles(name, classBase),
+        service: [{
+            relativePath: path.join('src', name, `${name}.service.ts`),
+            content: `import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class ${classBase}Service {
+  async execute(): Promise<string> {
+    return '${toCamelCase(name)}';
+  }
+}
+`,
+        }],
+        module: [{
+            relativePath: path.join('src', name, `${name}.module.ts`),
+            content: `import { Module } from '@nestjs/common';
+
+@Module({})
+export class ${classBase}Module {}
+`,
+        }],
+        entity: [{
+            relativePath: path.join('src', name, `${name}.entity.ts`),
+            content: `export interface ${classBase}Entity {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+`,
+        }],
+        guard: [{
+            relativePath: path.join('src', name, `${name}.guard.ts`),
+            content: `import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+
+@Injectable()
+export class ${classBase}Guard implements CanActivate {
+  canActivate(_context: ExecutionContext): boolean {
+    return true;
+  }
+}
+`,
+        }],
+    };
+
+    fs.mkdirSync(srcRoot, { recursive: true });
+    return writeGeneratedFiles(options.targetRoot, filesByType[options.type], Boolean(options.force));
+}
+
+function isScaffoldGenerator(type: string): type is ScaffoldGeneratorType {
+    return ['rpc', 'service', 'module', 'entity', 'guard', 'config'].includes(type);
+}
+
+function rpcServiceFiles(serviceName: string, classBase: string): { relativePath: string; content: string }[] {
+    return [{
+        relativePath: path.join('src', serviceName, `${serviceName}.service.ts`),
+        content: `import { Injectable } from '@nestjs/common';
+import { RpcMethod, RpcService } from 'wexts/nest';
+
+@Injectable()
+@RpcService({ name: '${toCamelCase(serviceName)}', requireAuth: false })
+export class ${classBase}Service {
+  @RpcMethod()
+  async sayHello(name: string): Promise<string> {
+    return \`Hello, \${name}!\`;
+  }
+}
+`,
+    }];
+}
+
+function writeGeneratedFiles(root: string, files: { relativePath: string; content: string }[], force: boolean): string[] {
+    const changedFiles: string[] = [];
+
+    for (const file of files) {
+        const absolutePath = path.join(root, file.relativePath);
+        if (fs.existsSync(absolutePath) && !force) {
+            throw new WextsError({
+                code: 'WEXTS_CLI_GENERATOR_FILE_EXISTS',
+                message: `Refusing to overwrite existing file: ${absolutePath}`,
+                suggestedFix: 'Review the file, then rerun with --force if overwriting is intentional.',
+                docsSlug: 'cli',
+            });
+        }
+        fs.mkdirSync(path.dirname(absolutePath), { recursive: true });
+        fs.writeFileSync(absolutePath, file.content);
+        changedFiles.push(absolutePath);
+    }
+
+    return changedFiles;
 }
 
 function runScript(script: string, options: CommonOptions): void {
@@ -302,7 +681,13 @@ function runCommand(command: string, args: string[], cwd: string): void {
 }
 
 function detectPackageManager(cwd: string): 'pnpm' | 'npm' {
+    const packageJsonPath = path.join(cwd, 'package.json');
+    if (fs.existsSync(packageJsonPath)) {
+        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as { packageManager?: string };
+        if (pkg.packageManager?.startsWith('pnpm@')) return 'pnpm';
+    }
     if (fs.existsSync(path.join(cwd, 'pnpm-lock.yaml'))) return 'pnpm';
+    if (fs.existsSync(path.join(cwd, 'pnpm-workspace.yaml'))) return 'pnpm';
     return 'npm';
 }
 
@@ -314,6 +699,12 @@ function findTemplatePath(): string | undefined {
     ];
 
     return candidates.find((candidate) => fs.existsSync(candidate));
+}
+
+function readPackageVersion(): string {
+    const packageJsonPath = path.resolve(__dirname, '../../package.json');
+    if (!fs.existsSync(packageJsonPath)) return '0.0.0';
+    return JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')).version as string;
 }
 
 function readAllText(cwd: string, dirs: string[]): string {
@@ -371,7 +762,7 @@ const invokedAsCli = process.argv[1]
 
 if (invokedAsCli && !process.env.VITEST) {
     createCliProgram().parseAsync(process.argv).catch((error) => {
-        logger.error(error instanceof Error ? error.message : String(error));
+        logger.error(formatWextsError(error));
         process.exit(1);
     });
 }

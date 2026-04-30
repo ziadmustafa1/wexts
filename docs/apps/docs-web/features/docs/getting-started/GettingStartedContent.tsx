@@ -11,31 +11,29 @@ export function GettingStartedContent() {
                 <Badge variant="new" className="mb-4">Getting Started</Badge>
                 <h1 id="getting-started">Getting Started with wexts</h1>
                 <p className="text-xl text-muted-foreground">
-                    Everything you need to build your first full-stack application with wexts.
-                    Get up and running in minutes.
+                    Build from the verified Wexts 4 starter with generated RPC,
+                    a production runtime, and explicit release checks.
                 </p>
             </div>
 
             <Callout type="info" title="Prerequisites">
-                Before you begin, make sure you have Node.js 18+ and pnpm installed on your system.
+                Before you begin, make sure you have Node.js 20+ and pnpm installed on your system.
             </Callout>
 
             <h2 id="installation">Installation</h2>
             <p>
-                The fastest way to get started is using the <code>create-wexts-app</code> CLI.
-                This will scaffold a complete full-stack application with all the best practices built-in.
+                The fastest path is the published Wexts CLI. It creates the verified Hello RPC starter.
             </p>
 
             <CodeBlock language="bash" filename="terminal">
-                {`npx wexts my-app
+                {`npx wexts create my-app
 cd my-app
 pnpm install
-pnpm dev`}
+pnpm run dev`}
             </CodeBlock>
 
             <Callout type="success" title="Project Created!">
-                Your wexts application is now running at <code>http://localhost:3000</code> (frontend)
-                and <code>http://localhost:5050</code> (backend).
+                Development mode starts separate web/API processes. The single-port server is the production <code>wexts start</code> runtime path.
             </Callout>
 
             <h2 id="project-structure">Project Structure</h2>
@@ -48,19 +46,14 @@ pnpm dev`}
 ├── apps/
 │   ├── web/                  # Next.js frontend
 │   │   ├── app/
-│   │   ├── components/
-│   │   ├── features/
 │   │   └── lib/
 │   └── api/                  # NestJS backend
 │       ├── src/
-│       ├── prisma/
-│       └── test/
-├── packages/
-│   ├── ui/                   # Shared UI components
-│   ├── shared/               # Shared types & DTOs
-│   └── config/               # Shared config
+│       └── tsconfig.json
+├── wexts.runtime.js
+├── pnpm-workspace.yaml
 ├── package.json
-└── turbo.json`}
+└── README.md`}
             </CodeBlock>
 
             <h2 id="key-features">Key Features Overview</h2>
@@ -72,7 +65,7 @@ pnpm dev`}
                         <CardTitle className="text-lg">RPC Auto-Linking</CardTitle>
                         <CardDescription>
                             Call backend functions from your frontend with full type safety.
-                            No manual API definitions needed.
+                            Generated from explicit RPC metadata and committed manifest output.
                         </CardDescription>
                     </CardHeader>
                 </Card>
@@ -93,8 +86,7 @@ pnpm dev`}
                         <Code className="text-blue-500 mb-2" size={24} />
                         <CardTitle className="text-lg">Type Safety</CardTitle>
                         <CardDescription>
-                            End-to-end TypeScript from database to UI.
-                            Catch errors at compile time, not runtime.
+                            TypeScript across backend service signatures and frontend calls.
                         </CardDescription>
                     </CardHeader>
                 </Card>
@@ -104,8 +96,7 @@ pnpm dev`}
                         <Rocket className="text-purple-500 mb-2" size={24} />
                         <CardTitle className="text-lg">Modern Stack</CardTitle>
                         <CardDescription>
-                            Built with Next.js 16, React 19, NestJS 10.
-                            Always using the latest and greatest.
+                            Built with Next.js 16, React 19, NestJS 11, Fastify 5, and TypeScript 5.9.
                         </CardDescription>
                     </CardHeader>
                 </Card>
@@ -118,7 +109,7 @@ pnpm dev`}
             </p>
 
             <CodeBlock language="bash" filename="terminal">
-                {`npx wexts generate service hello`}
+                {`npx wexts generate rpc hello`}
             </CodeBlock>
 
             <p>
@@ -172,10 +163,10 @@ export default function Page() {
             </p>
 
             <ul>
-                <li><a href="/docs/features/rpc">Learn more about generated RPC</a></li>
-                <li><a href="/docs/features/insight">Explore experimental insight tooling</a></li>
-                <li><a href="/docs/api">Check out the API Reference</a></li>
-                <li><a href="/docs/examples">See complete examples</a></li>
+                <li><a href="/docs/rpc">Learn more about generated RPC</a></li>
+                <li><a href="/docs/runtime">Understand the production runtime</a></li>
+                <li><a href="/docs/cli">Check out CLI commands</a></li>
+                <li><a href="/docs/known-limitations">Read known limitations</a></li>
             </ul>
 
             <div className="mt-12 pt-8 border-t border-border">
