@@ -17,7 +17,7 @@ All notable Wexts changes are documented here. This project follows Semantic Ver
 - `wexts generate rpc <name>` now scaffolds an RPC service; `wexts generate` or `wexts generate rpc` without a name still generates the RPC manifest/client.
 - Deprecated legacy templates are available only through `wexts create --template legacy`.
 
-## 4.1.0
+## 4.1.5
 
 ### Added
 
