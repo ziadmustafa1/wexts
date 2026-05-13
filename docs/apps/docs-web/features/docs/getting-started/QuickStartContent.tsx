@@ -26,8 +26,7 @@ pnpm install`}
             </CodeBlock>
 
             <Callout type="info" title="Development mode">
-                Development starts separate web and API processes for fast iteration.
-                The single-port runtime is the production <code>wexts start</code> path.
+                Development starts the API compiler watcher and the Wexts runtime together, so browser RPC calls use <code>/rpc</code> on the web port.
             </Callout>
 
             <h2 id="generate-build-check">3. Verify the app</h2>
