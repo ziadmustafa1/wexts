@@ -50,6 +50,11 @@
             "types": "./dist/runtime/index.d.ts",
             "import": "./dist/runtime/index.mjs",
             "require": "./dist/runtime/index.js"
+        },
+        "./server": {
+            "types": "./dist/server/index.d.ts",
+            "import": "./dist/server/index.mjs",
+            "require": "./dist/server/index.js"
         }
     },
     "scripts": {

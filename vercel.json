@@ -1,7 +1,8 @@
 {
-    "buildCommand": "turbo run build --filter=docs-web",
-    "outputDirectory": ".next",
-    "installCommand": "pnpm install",
+    "$schema": "https://openapi.vercel.sh/vercel.json",
     "framework": "nextjs",
-    "devCommand": "turbo run dev --filter=docs-web"
+    "installCommand": "pnpm install --filter docs-web... --frozen-lockfile",
+    "buildCommand": "pnpm --filter docs-web build",
+    "outputDirectory": "docs/apps/docs-web/.next",
+    "devCommand": "pnpm --filter docs-web dev"
 }

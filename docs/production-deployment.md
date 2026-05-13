@@ -4,7 +4,7 @@ Wexts is a production-focused single-runtime Next.js + NestJS toolkit. It provid
 
 ## Dev vs Production Runtime
 
-`wexts dev` starts separate web and API processes for local iteration. This is intentional and avoids pretending that development and production have identical process models.
+`wexts dev` starts the API TypeScript compiler in watch mode and runs the Wexts runtime in development mode on the web port, so local browser RPC calls use the same `/rpc` origin as production.
 
 `wexts start` is the supported single-port production runtime path. It serves health checks, RPC, optional Nest, and optional Next from one Fastify server.
 
