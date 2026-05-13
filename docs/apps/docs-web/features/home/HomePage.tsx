@@ -39,7 +39,7 @@ const solutions = [
 const shield = ['Headers', 'CORS', 'CSRF', 'Rate limits', 'Body limits', 'Concurrency', 'Audit redaction'];
 
 const limits = [
-    'Development mode can use separate web and API processes.',
+    'Development mode runs an API compiler watcher beside the Wexts runtime.',
     'Vercel mode is serverless and should be validated per application.',
     'WebSockets need VPS or another long-running runtime.',
     'Distributed rate limits need a shared store such as Redis.',

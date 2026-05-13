@@ -47,7 +47,7 @@ const docs: Record<string, DocPage> = {
         summary: 'Production runtime serves Fastify, Wexts Shield, Nest under /api, RPC under /rpc, Next routes, and health checks on one port.',
         commands: ['pnpm run build', 'PORT=3210 pnpm run start', 'curl http://127.0.0.1:3210/health', 'curl http://127.0.0.1:3210/api/health'],
         bullets: [
-            'Development mode can use separate web/API processes for iteration.',
+            'Development mode starts an API compiler watcher beside the Wexts runtime, keeping `/rpc` on the web origin.',
             'Runtime startup uses generated manifests and compiled config.',
             'No source scanning, file watching, or codegen should run during production start.',
         ],

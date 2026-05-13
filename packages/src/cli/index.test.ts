@@ -33,7 +33,7 @@ describe('cli', () => {
         expect(result.errors).toContain('JWT fallback "default-secret" found. Production apps must fail without a strong JWT_SECRET.');
     });
 
-    it('doctor documents separate-process dev mode', () => {
+    it('doctor documents single-port RPC dev mode', () => {
         const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'wexts-doctor-dev-'));
         fs.writeFileSync(path.join(cwd, 'package.json'), JSON.stringify({
             name: 'fixture',
@@ -42,7 +42,7 @@ describe('cli', () => {
         fs.mkdirSync(path.join(cwd, 'apps/api'), { recursive: true });
         fs.mkdirSync(path.join(cwd, 'apps/web'), { recursive: true });
 
-        expect(runDoctor(cwd).warnings).toContain('Development mode starts separate web/API processes. Single-port serving is the production `wexts start` runtime path.');
+        expect(runDoctor(cwd).warnings).toContain('Development mode starts an API compiler plus the Wexts runtime so `/rpc` and Next routes share the web port.');
     });
 
     it('scaffolds predictable generator files without overwriting by default', async () => {
