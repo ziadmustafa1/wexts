@@ -34,4 +34,4 @@ NODE_ENV=production PORT=3210 wexts start -c ./wexts.runtime.js
 
 ## Dev vs Production
 
-`wexts dev` runs separate web/API processes for local iteration. Single-port serving is the production `wexts start` path.
+`wexts dev` starts the API TypeScript compiler in watch mode and runs the Wexts runtime in development mode on the web port, so `/rpc/:service/:method`, health checks, and Next routes share one origin during local browser testing.

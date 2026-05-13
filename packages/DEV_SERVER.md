@@ -1,45 +1,45 @@
-# Fusion Dev Server
+# Wexts Dev Server
 
-Unified development server for running NestJS + Next.js together.
+Unified development runner for a Wexts app.
 
 ## Usage
 
-From monorepo root:
+From the project root:
 
 ```bash
-fusion dev
+wexts dev
 ```
 
 With custom options:
 
 ```bash
-fusion dev -a ./apps/api -w ./apps/web -p 3000 --api-port 5050
+wexts dev -a ./apps/api -w ./apps/web -c ./wexts.runtime.js -p 3000 --api-port 5050
 ```
 
 ## Features
 
-✅ **Concurrent Processes** - Run API and Web servers simultaneously
-✅ **Colored Output** - Easy to distinguish between server logs
-✅ **HTTP Proxy** - Automatic `/api` routing from Next.js to NestJS
-✅ **WebSocket Support** - Full duplex communication
-✅ **Hot Reload** - Both servers reload on code changes
-✅ **Graceful Shutdown** - Clean process termination with Ctrl+C
+✅ **API compiler watcher** - Runs the API TypeScript compiler in watch mode.
+✅ **Single-origin browser RPC** - Starts the Wexts runtime on the web port so `/rpc/*`, health checks, and Next routes share the same origin.
+✅ **Colored Output** - Prefixes API and Web/runtime logs.
+✅ **Hot Reload** - Next.js runs in runtime development mode while the API compiler watches source changes.
+✅ **Graceful Shutdown** - Stops child processes with Ctrl+C.
 
 ## How It Works
 
-1. **Process Runner** - Spawns NestJS (`npm run start:dev`) and Next.js (`npm run dev`)
-2. **Proxy Server** - Creates HTTP proxy on web port to forward `/api/*` to API port
-3. **Log Management** - Prefixes each log line with colored server name
+1. **API process** - Runs `pnpm run start:dev` when `apps/api/package.json` exists; otherwise runs `pnpm exec tsc -w -p apps/api/tsconfig.json` from the project root.
+2. **Web process** - Runs `pnpm exec wexts start -c ./wexts.runtime.js -p 3000 --dev`.
+3. **Runtime routing** - The Wexts runtime serves `/health`, `/api/health`, `/rpc/:service/:method`, and Next routes on the web port.
 
 ## Options
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `-a, --api <path>` | Path to NestJS app | `./apps/api` |
+| `-a, --api <path>` | Path to API app | `./apps/api` |
 | `-w, --web <path>` | Path to Next.js app | `./apps/web` |
-| `-p, --port <port>` | Web server port | `3000` |
-| `--api-port <port>` | API server port | `5050` |
-| `--no-proxy` | Disable proxy (direct API calls) | Proxy enabled |
+| `-c, --config <path>` | Runtime config module path | `./wexts.runtime.js` |
+| `-p, --port <port>` | Web/runtime port | `3000` |
+| `--api-port <port>` | API compiler environment port | `5050` |
+| `--proxy` | Legacy proxy flag; intentionally rejected | disabled |
 
 ## Example Output
 
@@ -48,49 +48,17 @@ fusion dev -a ./apps/api -w ./apps/web -p 3000 --api-port 5050
 
 [API] Starting...
 [Web] Starting...
-✅ Proxy server running on port 3000
-   Forwarding /api/* → http://localhost:5050
 
 ╔═══════════════════════════════════════╗
 ║   Fusion Development Server Ready    ║
 ╚═══════════════════════════════════════╝
 
-🌐 Web:  http://localhost:3000
-🔌 API:  http://localhost:5050
-🔄 Proxy: Enabled (3000/api → 5050)
-
-[API] NestJS application successfully started
-[Web] ▲ Next.js 16.0.0
-[Web] - Local: http://localhost:3000
-```
-
-## Architecture
-
-```
-┌─────────────────┐
-│   Next.js App   │
-│  (Port 3000)    │
-└────────┬────────┘
-         │
-         │ /api/* requests
-         ▼
-┌─────────────────┐
-│  Proxy Server   │
-│  (Port 3000)    │
-└────────┬────────┘
-         │
-         │ Forward to
-         ▼
-┌─────────────────┐
-│   NestJS API    │
-│  (Port 5050)    │
-└─────────────────┘
+🌐 Web + RPC:  http://localhost:3000
+🔌 API compiler: /path/to/app/apps/api
 ```
 
 ## Requirements
 
-- Both apps must have `package.json` with:
-  - API: `start:dev` script
-  - Web: `dev` script
-- npm/pnpm/yarn installed
-- Node.js 18+
+- `pnpm` installed.
+- A generated RPC manifest referenced by `wexts.runtime.js`.
+- Compiled API services available to the runtime config. In dev mode, `wexts start --dev` retries loading the config briefly while the API compiler emits `dist`.

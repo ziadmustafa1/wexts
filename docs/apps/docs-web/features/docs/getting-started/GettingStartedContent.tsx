@@ -33,7 +33,7 @@ pnpm run dev`}
             </CodeBlock>
 
             <Callout type="success" title="Project Created!">
-                Development mode starts separate web/API processes. The single-port server is the production <code>wexts start</code> runtime path.
+                Development mode starts the API compiler watcher and Wexts runtime together, so <code>/rpc</code> and Next routes share the web port.
             </Callout>
 
             <h2 id="project-structure">Project Structure</h2>

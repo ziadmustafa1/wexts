@@ -67,8 +67,8 @@ npx wexts generate config`}
                         <CodeBlock language="bash">
                             {`pnpm run dev
 
-# Development uses separate web/API processes.
-# Production single-port serving uses wexts start.`}
+# Development runs the API compiler plus Wexts runtime.
+# /rpc and Next routes share the web port.`}
                         </CodeBlock>
                     </CardContent>
                 </Card>
