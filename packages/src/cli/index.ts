@@ -37,7 +37,8 @@ export function createCliProgram(): Command {
         .option('-p, --port <port>', 'Port for web server', '3000')
         .option('--api-port <port>', 'Port for API server', '5050')
         .option('--proxy', 'Enable development proxy on a separate proxy port', false)
-        .action(async (options: { api: string; web: string; port: string; apiPort: string; proxy: boolean }) => {
+        .option('-c, --config <path>', 'Runtime config module path', './wexts.runtime.js')
+        .action(async (options: { api: string; web: string; port: string; apiPort: string; proxy: boolean; config: string }) => {
             const { FusionDevServer } = await import('../dev-server/index.js');
             const server = new FusionDevServer();
             await server.start({
@@ -46,6 +47,8 @@ export function createCliProgram(): Command {
                 webPort: Number(options.port),
                 apiPort: Number(options.apiPort),
                 useProxy: options.proxy,
+                rootDir: process.cwd(),
+                runtimeConfigPath: options.config,
             });
         });
 
@@ -116,19 +119,20 @@ export function createCliProgram(): Command {
 
     program
         .command('start')
-        .description('Start the production Wexts runtime')
+        .description('Start the Wexts runtime')
         .option('-c, --config <path>', 'Runtime config module path', './wexts.runtime.js')
         .option('-p, --port <port>', 'Port to listen on', process.env.PORT ?? '3000')
-        .action(async (options: { config: string; port: string }) => {
+        .option('--dev', 'Run the runtime in development mode', false)
+        .action(async (options: { config: string; port: string; dev: boolean }) => {
             const { startWextsRuntime } = await import('../runtime/index.js');
             const configPath = path.resolve(options.config);
             const runtimeConfig = fs.existsSync(configPath)
-                ? await loadRuntimeConfig(configPath)
+                ? await loadRuntimeConfig(configPath, options.dev)
                 : {};
             await startWextsRuntime({
                 ...runtimeConfig,
                 port: Number(options.port),
-                dev: false,
+                dev: options.dev,
             });
         });
 
@@ -213,7 +217,7 @@ export function runDoctor(cwd: string, security = false): DoctorResult {
     }
 
     if (fs.existsSync(path.join(cwd, 'apps/api')) && fs.existsSync(path.join(cwd, 'apps/web'))) {
-        result.warnings.push('Development mode starts separate web/API processes. Single-port serving is the production `wexts start` runtime path.');
+        result.warnings.push('Development mode starts an API compiler plus the Wexts runtime so `/rpc` and Next routes share the web port.');
     }
 
     if (security) {
@@ -746,15 +750,29 @@ function pathToFileUrl(filePath: string): string {
     return `file://${filePath}`;
 }
 
-async function loadRuntimeConfig(configPath: string): Promise<Record<string, unknown>> {
-    if (configPath.endsWith('.mjs')) {
-        const mod = await import(pathToFileUrl(configPath));
-        return (mod.default ?? mod) as Record<string, unknown>;
-    }
+async function loadRuntimeConfig(configPath: string, retry = false): Promise<Record<string, unknown>> {
+    const deadline = Date.now() + (retry ? 15_000 : 0);
+    let lastError: unknown;
 
-    const require = createRequire(__filename);
-    const mod = require(configPath);
-    return (mod.default ?? mod) as Record<string, unknown>;
+    do {
+        try {
+            if (configPath.endsWith('.mjs')) {
+                const mod = await import(pathToFileUrl(configPath));
+                return (mod.default ?? mod) as Record<string, unknown>;
+            }
+
+            const require = createRequire(__filename);
+            delete require.cache[require.resolve(configPath)];
+            const mod = require(configPath);
+            return (mod.default ?? mod) as Record<string, unknown>;
+        } catch (error) {
+            lastError = error;
+            if (!retry || Date.now() >= deadline) break;
+            await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+    } while (retry);
+
+    throw lastError;
 }
 
 const invokedAsCli = process.argv[1]

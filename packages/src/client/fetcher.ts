@@ -19,7 +19,7 @@ export class FusionFetcher {
             if (token) headers['Authorization'] = `Bearer ${token}`;
         }
 
-    const response = await fetch(`${this.baseUrl}${path}`, {
+        const response = await fetch(`${this.baseUrl}${path}`, {
             method,
             headers,
             body: body ? JSON.stringify(body) : undefined,
